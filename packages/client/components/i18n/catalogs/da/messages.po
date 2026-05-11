@@ -229,6 +229,14 @@ msgstr ""
 msgid "<0>Be careful!</0><1/>This is not the same as the link that was displayed:"
 msgstr ""
 
+#: components/modal/modals/BanMember.tsx
+msgid "1 day"
+msgstr ""
+
+#: components/modal/modals/BanMember.tsx
+msgid "1 hour"
+msgstr ""
+
 #: components/ui/components/features/messaging/elements/Reactions.tsx
 msgid "1 person reacted"
 msgstr "1 person reagerede"
@@ -239,6 +247,18 @@ msgstr ""
 
 #: components/app/interface/settings/user/Language.tsx
 msgid "24 hours"
+msgstr ""
+
+#: components/modal/modals/BanMember.tsx
+msgid "3 days"
+msgstr ""
+
+#: components/modal/modals/BanMember.tsx
+msgid "6 hours"
+msgstr ""
+
+#: components/modal/modals/BanMember.tsx
+msgid "7 days"
 msgstr ""
 
 #: components/app/interface/settings/channel/permissions/ChannelPermissionsEditor.tsx
@@ -338,6 +358,10 @@ msgstr ""
 #: components/i18n/errors.ts
 msgid "Already friends with this user."
 msgstr "Allerede venner med denne bruger."
+
+#: components/app/interface/settings/user/voice/ScreenShareOptions.tsx
+msgid "Always Ask for Screen Share Quality"
+msgstr ""
 
 #: components/app/interface/settings/user/Language.tsx
 msgid "American (MM/DD/YYYY)"
@@ -478,8 +502,8 @@ msgstr ""
 #~ msgstr ""
 
 #: components/app/interface/settings/user/Feedback.tsx
-msgid "Bug Tracker"
-msgstr "Fejlsporing"
+#~ msgid "Bug Tracker"
+#~ msgstr "Fejlsporing"
 
 #: src/interface/navigation/channels/HomeSidebar.tsx
 #: src/interface/channels/text/MemberSidebar.tsx
@@ -495,8 +519,22 @@ msgstr ""
 msgid "By creating this server, you agree to the <0>Acceptable Use Policy</0>."
 msgstr ""
 
+#: components/app/interface/settings/user/Native.tsx
+msgid "Campfire for Desktop"
+msgstr ""
+
+#: components/auth/src/flows/FlowHome.tsx
+msgid "Campfire is one of the best ways to stay connected with your friends and community, anywhere, anytime."
+msgstr ""
+
+#: components/app/interface/settings/user/Native.tsx
+msgid "Campfire will start in the system tray."
+msgstr ""
+
 #: components/modal/modals/SignOutSessions.tsx
 #: components/modal/modals/ServerIdentity.tsx
+#: components/modal/modals/ScreenShareSettings.tsx
+#: components/modal/modals/ScreenSharePicker.tsx
 #: components/modal/modals/ResetBotToken.tsx
 #: components/modal/modals/ReportContent.tsx
 #: components/modal/modals/RenameSession.tsx
@@ -786,6 +824,7 @@ msgid "Copy server ID"
 msgstr "Kopiér server-ID"
 
 #: components/app/menus/MessageContextMenu.tsx
+#: components/app/menus/DraftMessageContextMenu.tsx
 msgid "Copy text"
 msgstr "Kopiér tekst"
 
@@ -1026,6 +1065,10 @@ msgstr ""
 msgid "Delete message"
 msgstr "Slet besked"
 
+#: components/modal/modals/BanMember.tsx
+msgid "Delete Message History"
+msgstr ""
+
 #: components/app/interface/settings/server/roles/ServerRoleEditor.tsx
 msgid "Delete Role"
 msgstr "Slet rolle"
@@ -1044,8 +1087,8 @@ msgid "Desktop"
 msgstr ""
 
 #: components/app/interface/settings/user/bots/MyBots.tsx
-msgid "Developer Documentation"
-msgstr ""
+#~ msgid "Developer Documentation"
+#~ msgstr ""
 
 #: components/app/interface/settings/user/Account.tsx
 msgid "Disable Account"
@@ -1072,8 +1115,8 @@ msgid "Discord RPC"
 msgstr ""
 
 #: src/interface/Home.tsx
-msgid "Discover Stoat"
-msgstr ""
+#~ msgid "Discover Stoat"
+#~ msgstr ""
 
 #: components/app/interface/settings/user/appearance/AppearanceMenu.tsx
 msgid "Display & Text"
@@ -1087,6 +1130,10 @@ msgstr ""
 msgid "Do Not Disturb"
 msgstr "Forstyr ikke"
 
+#: components/modal/modals/ScreenShareSettings.tsx
+msgid "Don't ask me again"
+msgstr ""
+
 #: components/modal/modals/LinkWarning.tsx
 msgid "Don't ask me again for "
 msgstr ""
@@ -1095,17 +1142,21 @@ msgstr ""
 #~ msgid "Don't ask me again for <0>{0}</0>"
 #~ msgstr ""
 
+#: components/modal/modals/BanMember.tsx
+msgid "Don't delete messages"
+msgstr ""
+
 #: components/modal/modals/LeaveServer.tsx
 msgid "Don't notify others that you've left"
 msgstr ""
 
 #: components/app/interface/settings/UserSettings.tsx
-msgid "Donate"
-msgstr ""
+#~ msgid "Donate"
+#~ msgstr ""
 
 #: src/interface/Home.tsx
-msgid "Donate to Stoat"
-msgstr ""
+#~ msgid "Donate to Stoat"
+#~ msgstr ""
 
 #: components/ui/components/features/profiles/ProfileBadges.tsx
 msgid "Donated to Stoat"
@@ -1280,13 +1331,16 @@ msgid "Failed to verify!"
 msgstr "Bekræftelse mislykkedes!"
 
 #: components/app/interface/settings/UserSettings.tsx
-#: components/app/interface/settings/user/Feedback.tsx
 msgid "Feedback"
 msgstr "Feedback"
 
+#: components/app/interface/settings/user/Feedback.tsx
+msgid "Feedback channels coming soon."
+msgstr ""
+
 #: src/interface/Home.tsx
-msgid "Find a community based on your hobbies or interests."
-msgstr "Find et fællesskab baseret på dine hobbyer eller interesser."
+#~ msgid "Find a community based on your hobbies or interests."
+#~ msgstr "Find et fællesskab baseret på dine hobbyer eller interesser."
 
 #: components/auth/src/flows/FlowHome.tsx
 msgid "Find your com<0/>munity,<1/>connect with the world."
@@ -1330,8 +1384,8 @@ msgid "Friends"
 msgstr "Venner"
 
 #: components/app/interface/settings/user/appearance/AppearanceMenu.tsx
-msgid "Fruit Salad"
-msgstr ""
+#~ msgid "Fruit Salad"
+#~ msgstr ""
 
 #: components/app/interface/settings/user/bots/ViewBot.tsx
 msgid "Generate a new token if it gets lost or compromised"
@@ -1354,11 +1408,20 @@ msgid "Get active recovery codes"
 msgstr ""
 
 #: src/interface/Home.tsx
-msgid "Give feedback on Stoat"
+msgid "Give feedback"
 msgstr ""
+
+#: src/interface/Home.tsx
+#~ msgid "Give feedback on Stoat"
+#~ msgstr ""
 
 #: components/modal/modals/ReportContent.tsx
 msgid "Give us some detail"
+msgstr ""
+
+#: components/modal/modals/ScreenShareSettings.tsx
+#: components/modal/modals/ScreenSharePicker.tsx
+msgid "Go"
 msgstr ""
 
 #: components/auth/src/flows/FlowVerify.tsx
@@ -1375,8 +1438,8 @@ msgstr ""
 
 #: src/interface/Home.tsx
 #: components/app/interface/settings/user/Feedback.tsx
-msgid "Go to the Stoat Lounge"
-msgstr ""
+#~ msgid "Go to the Stoat Lounge"
+#~ msgstr ""
 
 #: src/interface/Home.tsx
 #: src/interface/Home.tsx
@@ -1427,9 +1490,13 @@ msgstr ""
 msgid "Here is your new invite code: <0>{0}</0>"
 msgstr ""
 
-#: components/app/interface/settings/user/appearance/AppearanceMenu.tsx
-msgid "High Contrast"
+#: components/ui/components/features/voice/callCard/VoiceCallCardActiveRoom.tsx
+msgid "Hide Others"
 msgstr ""
+
+#: components/app/interface/settings/user/appearance/AppearanceMenu.tsx
+#~ msgid "High Contrast"
+#~ msgstr ""
 
 #: src/interface/Home.tsx
 #: src/interface/navigation/channels/HomeSidebar.tsx
@@ -1442,6 +1509,10 @@ msgstr "Jeg bekræfter, at jeg er mindst 18 år gammel."
 
 #: components/modal/modals/LinkWarning.tsx
 msgid "I understand the consequences"
+msgstr ""
+
+#: components/app/interface/settings/user/bots/ViewBot.tsx
+msgid "ID copied to clipboard"
 msgstr ""
 
 #: src/interface/navigation/servers/UserMenu.tsx
@@ -1464,8 +1535,12 @@ msgid "Impersonation"
 msgstr ""
 
 #: components/app/interface/settings/user/Native.tsx
-msgid "Instead of closing, Stoat will hide in your tray."
+msgid "Instead of closing, Campfire will hide in your tray."
 msgstr ""
+
+#: components/app/interface/settings/user/Native.tsx
+#~ msgid "Instead of closing, Stoat will hide in your tray."
+#~ msgstr ""
 
 #: components/app/interface/settings/user/appearance/AppearanceMenu.tsx
 msgid "Interface Font"
@@ -1491,6 +1566,10 @@ msgstr "Invitationskode"
 #: components/app/interface/settings/channel/permissions/ChannelPermissionsEditor.tsx
 msgid "Invite Others"
 msgstr "Inviter andre"
+
+#: components/app/interface/settings/user/bots/ViewBot.tsx
+msgid "Invite URL copied to clipboard"
+msgstr ""
 
 #: components/app/interface/settings/server/invites/ListServerInvites.tsx
 msgid "Inviter"
@@ -1527,8 +1606,8 @@ msgstr ""
 
 #: src/interface/Home.tsx
 #: components/app/interface/settings/user/Feedback.tsx
-msgid "Join the Stoat Lounge"
-msgstr ""
+#~ msgid "Join the Stoat Lounge"
+#~ msgstr ""
 
 #: components/ui/components/features/voice/callCard/VoiceCallCardPreview.tsx
 msgid "Join the voice channel"
@@ -1585,12 +1664,16 @@ msgid "Latest"
 msgstr "Seneste"
 
 #: components/app/interface/settings/user/Native.tsx
-msgid "Launch Stoat when you log into your computer."
+msgid "Launch Campfire when you log into your computer."
 msgstr ""
 
+#: components/app/interface/settings/user/Native.tsx
+#~ msgid "Launch Stoat when you log into your computer."
+#~ msgstr ""
+
 #: components/app/interface/settings/user/bots/MyBots.tsx
-msgid "Learn more about how to create bots on Stoat."
-msgstr ""
+#~ msgid "Learn more about how to create bots on Stoat."
+#~ msgstr ""
 
 #: components/modal/modals/LeaveServer.tsx
 #: components/modal/modals/DeleteChannel.tsx
@@ -1613,8 +1696,12 @@ msgid "Leave server"
 msgstr "Forlad server"
 
 #: components/app/interface/settings/user/Native.tsx
-msgid "Let Stoat use its own custom titlebar."
+msgid "Let Campfire use its own custom titlebar."
 msgstr ""
+
+#: components/app/interface/settings/user/Native.tsx
+#~ msgid "Let Stoat use its own custom titlebar."
+#~ msgstr ""
 
 #: src/interface/Home.tsx
 msgid "Let us know how we can improve our app by giving us feedback."
@@ -1805,16 +1892,16 @@ msgid "Missing permission"
 msgstr ""
 
 #: components/app/interface/settings/user/appearance/AppearanceMenu.tsx
-msgid "Monochrome"
-msgstr ""
+#~ msgid "Monochrome"
+#~ msgstr ""
 
 #: components/app/interface/settings/user/appearance/AppearanceMenu.tsx
 msgid "Monospace Font"
 msgstr ""
 
 #: components/app/interface/settings/user/appearance/AppearanceMenu.tsx
-msgid "More Contrast"
-msgstr ""
+#~ msgid "More Contrast"
+#~ msgstr ""
 
 #: components/app/interface/settings/channel/permissions/ChannelPermissionsEditor.tsx
 msgid "Move Members"
@@ -1882,8 +1969,8 @@ msgid "Name"
 msgstr ""
 
 #: components/app/interface/settings/user/appearance/AppearanceMenu.tsx
-msgid "Neutral"
-msgstr ""
+#~ msgid "Neutral"
+#~ msgstr ""
 
 #: components/ui/components/features/messaging/elements/MessageDivider.tsx
 msgid "NEW"
@@ -1900,8 +1987,12 @@ msgid "New Password"
 msgstr "Ny adgangskode"
 
 #: components/app/interface/channels/text/Message.tsx
-msgid "New to Stoat"
+msgid "New to Campfire"
 msgstr ""
+
+#: components/app/interface/channels/text/Message.tsx
+#~ msgid "New to Stoat"
+#~ msgstr ""
 
 #: components/app/interface/channels/text/Message.tsx
 msgid "New to the server"
@@ -1926,8 +2017,8 @@ msgid "None"
 msgstr "Ingen"
 
 #: components/app/interface/settings/user/appearance/AppearanceMenu.tsx
-msgid "Normal"
-msgstr ""
+#~ msgid "Normal"
+#~ msgstr ""
 
 #: components/modal/modals/ReportContent.tsx
 msgid "Not of minimum age to use the platform"
@@ -2052,6 +2143,10 @@ msgstr ""
 msgid "Permissions"
 msgstr "Rettigheder"
 
+#: components/modal/modals/ScreenSharePicker.tsx
+msgid "Pick a Screen to Share"
+msgstr ""
+
 #: components/auth/src/flows/FlowLogin.tsx
 msgid "Pick a username that you want people to be able to find you by. This can be changed later in your user settings."
 msgstr "Vælg et brugernavn, som folk kan finde dig på. Dette kan ændres senere i dine brugerindstillinger."
@@ -2104,6 +2199,7 @@ msgstr "Privatlivspolitik"
 msgid "Private Channel"
 msgstr ""
 
+#: components/app/menus/UserContextMenu.tsx
 #: components/app/interface/settings/UserSettings.tsx
 msgid "Profile"
 msgstr "Profil"
@@ -2176,8 +2272,8 @@ msgid "Recovery Codes"
 msgstr ""
 
 #: components/app/interface/settings/user/appearance/AppearanceMenu.tsx
-msgid "Reduced"
-msgstr ""
+#~ msgid "Reduced"
+#~ msgstr ""
 
 #: components/auth/src/flows/FlowCreate.tsx
 msgid "Register"
@@ -2236,8 +2332,12 @@ msgid "Rename Session"
 msgstr ""
 
 #: components/app/interface/settings/user/Native.tsx
-msgid "Rep Stoat using Discord rich presence."
+msgid "Rep Campfire using Discord rich presence."
 msgstr ""
+
+#: components/app/interface/settings/user/Native.tsx
+#~ msgid "Rep Stoat using Discord rich presence."
+#~ msgstr ""
 
 #: components/app/menus/MessageContextMenu.tsx
 msgid "Reply"
@@ -2358,6 +2458,11 @@ msgstr "Gemte noter"
 msgid "Scams or fraud"
 msgstr ""
 
+#: components/modal/modals/ScreenShareSettings.tsx
+#: components/app/interface/settings/user/voice/ScreenShareOptions.tsx
+msgid "Screen Share Settings"
+msgstr ""
+
 #: components/modal/modals/AddBot.tsx
 msgid "Search for groups..."
 msgstr ""
@@ -2385,6 +2490,10 @@ msgstr ""
 
 #: components/app/interface/settings/user/voice/VoiceProcessingOptions.tsx
 msgid "Select noise suppression"
+msgstr ""
+
+#: components/app/interface/settings/user/voice/ScreenShareOptions.tsx
+msgid "Select screen share quality"
 msgstr ""
 
 #: components/app/interface/settings/user/Language.tsx
@@ -2513,13 +2622,21 @@ msgstr ""
 msgid "Show corrections and suggestions as you type."
 msgstr ""
 
+#: components/ui/components/features/voice/callCard/VoiceCallCardActiveRoom.tsx
+msgid "Show Others"
+msgstr ""
+
 #: components/app/interface/settings/user/appearance/AppearanceMenu.tsx
 msgid "Show send message button"
 msgstr ""
 
 #: components/auth/src/flows/FlowLogin.tsx
-msgid "Sign into Stoat"
+msgid "Sign into Campfire"
 msgstr ""
+
+#: components/auth/src/flows/FlowLogin.tsx
+#~ msgid "Sign into Stoat"
+#~ msgstr ""
 
 #: components/auth/src/flows/FlowHome.tsx
 msgid "Sign Up"
@@ -2555,8 +2672,8 @@ msgid "Sounds"
 msgstr "Lyde"
 
 #: components/app/interface/settings/UserSettings.tsx
-msgid "Source Code"
-msgstr "Kildekode"
+#~ msgid "Source Code"
+#~ msgstr "Kildekode"
 
 #: components/modal/modals/ReportContent.tsx
 msgid "Spam or similar platform abuse"
@@ -2595,28 +2712,28 @@ msgid "Stoat Developer"
 msgstr ""
 
 #: components/app/interface/settings/user/Native.tsx
-msgid "Stoat for Desktop"
-msgstr ""
+#~ msgid "Stoat for Desktop"
+#~ msgstr ""
 
 #: components/ui/components/features/profiles/ProfileBadges.tsx
 msgid "Stoat Founder"
 msgstr ""
 
 #: components/auth/src/flows/FlowHome.tsx
-msgid "Stoat is one of the best ways to stay connected with your friends and community, anywhere, anytime."
-msgstr ""
+#~ msgid "Stoat is one of the best ways to stay connected with your friends and community, anywhere, anytime."
+#~ msgstr ""
 
 #: components/app/interface/settings/user/Native.tsx
-msgid "Stoat will start in the system tray."
-msgstr ""
+#~ msgid "Stoat will start in the system tray."
+#~ msgstr ""
 
 #: components/app/interface/settings/user/Feedback.tsx
-msgid "Submit feature suggestion"
-msgstr "Indsend forslag til funktioner"
+#~ msgid "Submit feature suggestion"
+#~ msgstr "Indsend forslag til funktioner"
 
 #: components/app/interface/settings/user/Feedback.tsx
-msgid "Submit feedback"
-msgstr "Indsend feedback"
+#~ msgid "Submit feedback"
+#~ msgstr "Indsend feedback"
 
 #: components/app/interface/settings/user/bots/ViewBot.tsx
 msgid "Submit to Discover"
@@ -2627,12 +2744,12 @@ msgid "Subscriptions"
 msgstr ""
 
 #: components/app/interface/settings/user/Feedback.tsx
-msgid "Suggest new Stoat features on GitHub discussions."
-msgstr ""
+#~ msgid "Suggest new Stoat features on GitHub discussions."
+#~ msgstr ""
 
 #: src/interface/Home.tsx
-msgid "Support the project by donating - thank you!"
-msgstr "Støt projektet med en donation – tak!"
+#~ msgid "Support the project by donating - thank you!"
+#~ msgstr "Støt projektet med en donation – tak!"
 
 #: components/ui/components/features/voice/callCard/VoiceCallCardPreview.tsx
 msgid "Switch to this voice channel"
@@ -2796,9 +2913,13 @@ msgstr "Timeout medlemmer"
 msgid "Toggle main sidebar"
 msgstr ""
 
-#: components/app/interface/settings/user/appearance/AppearanceMenu.tsx
-msgid "Tonal Spot"
+#: components/app/interface/settings/user/bots/ViewBot.tsx
+msgid "Token copied to clipboard"
 msgstr ""
+
+#: components/app/interface/settings/user/appearance/AppearanceMenu.tsx
+#~ msgid "Tonal Spot"
+#~ msgstr ""
 
 #: components/app/interface/settings/user/Language.tsx
 msgid "Traditional (DD/MM/YYYY)"
@@ -2814,8 +2935,12 @@ msgstr "Fjern blokering af bruger"
 
 #. placeholder {0}: err.type
 #: components/i18n/errors.ts
-msgid "Uncaught Stoat error: {0}"
+msgid "Uncaught error: {0}"
 msgstr ""
+
+#: components/i18n/errors.ts
+#~ msgid "Uncaught Stoat error: {0}"
+#~ msgstr ""
 
 #: components/markdown/plugins/anchors.tsx
 msgid "Unknown Server"
@@ -2970,8 +3095,8 @@ msgid "View Channel"
 msgstr "Se kanal"
 
 #: components/app/interface/settings/user/Feedback.tsx
-msgid "View currently active bug reports here."
-msgstr "Se aktuelt aktive fejlrapporter her."
+#~ msgid "View currently active bug reports here."
+#~ msgstr "Se aktuelt aktive fejlrapporter her."
 
 #: src/interface/channels/ChannelHeader.tsx
 msgid "View members"
@@ -2996,6 +3121,10 @@ msgstr "Ser ældre beskeder"
 #: components/app/interface/settings/UserSettings.tsx
 #: components/app/interface/settings/channel/permissions/ChannelPermissionsEditor.tsx
 msgid "Voice"
+msgstr ""
+
+#: components/app/interface/settings/UserSettings.tsx
+msgid "Voice & Video"
 msgstr ""
 
 #: components/modal/modals/CreateChannel.tsx
@@ -3097,8 +3226,8 @@ msgstr "Du kan åbne den igen senere, men den forsvinder på begge sider."
 #: src/interface/Home.tsx
 #: components/app/interface/settings/user/Feedback.tsx
 #: components/app/interface/settings/user/Feedback.tsx
-msgid "You can report issues and discuss improvements with us directly here."
-msgstr "Du kan rapportere problemer og diskutere forbedringer med os direkte her."
+#~ msgid "You can report issues and discuss improvements with us directly here."
+#~ msgstr "Du kan rapportere problemer og diskutere forbedringer med os direkte her."
 
 #. placeholder {0}: err.max
 #: components/i18n/errors.ts
@@ -3199,7 +3328,11 @@ msgid "You've been invited to join this server.<0/>Would you like to join?"
 msgstr ""
 
 #: components/modal/modals/SignedOut.tsx
-msgid "You've been signed out of Stoat!"
+#~ msgid "You've been signed out of Stoat!"
+#~ msgstr ""
+
+#: components/modal/modals/SignedOut.tsx
+msgid "You've been signed out!"
 msgstr ""
 
 #: components/i18n/errors.ts
