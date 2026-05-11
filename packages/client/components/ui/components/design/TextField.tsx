@@ -1,24 +1,18 @@
-import type { JSX } from "solid-js";
+import { JSX, Show, createSignal, splitProps } from "solid-js";
+
+import { cva } from "styled-system/css";
+import { styled } from "styled-system/jsx";
 
 import "mdui/components/select.js";
-import "mdui/components/text-field.js";
 
-type Props = JSX.HTMLAttributes<HTMLInputElement> & {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value?: any;
-  autoFocus?: boolean;
-  required?: boolean;
-  name?: string;
+type Variant = "filled" | "outlined";
+
+type Props = Omit<JSX.InputHTMLAttributes<HTMLInputElement>, "type"> & {
   label?: string;
-  autosize?: boolean;
-  disabled?: boolean;
-  rows?: number;
-  "min-rows"?: number;
-  "max-rows"?: number;
-  maxlength?: number;
-  minlength?: number;
+  helper?: string;
+  variant?: Variant;
   counter?: boolean;
-  placeholder?: string;
+  autoFocus?: boolean;
   type?:
     | "text"
     | "number"
@@ -33,70 +27,128 @@ type Props = JSX.HTMLAttributes<HTMLInputElement> & {
     | "month"
     | "time"
     | "week";
-  variant?: "filled" | "outlined";
-  enterkeyhint?:
-    | "enter"
-    | "done"
-    | "go"
-    | "next"
-    | "previous"
-    | "search"
-    | "find";
-  helper?: string;
-  "helper-on-focus"?: boolean;
-  clearable?: boolean;
-  "clear-icon"?: string;
-  "end-aligned"?: boolean;
-  prefix?: string;
-  suffix?: string;
-  icon?: string;
-  "end-icon"?: string;
-  "error-icon"?: string;
-  form?: string;
-  readonly?: boolean;
-  min?: number;
-  max?: number;
-  step?: number;
-  pattern?: string;
-  "toggle-password"?: boolean;
-  "show-password-icon"?: string;
-  "hide-password-icon"?: string;
-  autocapitalize?: "none" | "sentences" | "words" | "characters";
-  autocorrect?: string;
-  autocomplete?: string;
-  spellcheck?: boolean;
-  inputmode?:
-    | "none"
-    | "text"
-    | "decimal"
-    | "numeric"
-    | "tel"
-    | "search"
-    | "email"
-    | "url";
-  autofocus?: boolean;
-  tabindex?: number;
 };
 
+const inputStyles = cva({
+  base: {
+    height: "36px",
+    width: "100%",
+    minWidth: 0,
+    borderRadius: "var(--borderRadius-xli)",
+    border: "1px solid transparent",
+    background: "color-mix(in oklab, var(--md-sys-color-surface-container-high) 75%, transparent)",
+    color: "var(--md-sys-color-on-surface)",
+    paddingInline: "12px",
+    paddingBlock: "4px",
+    fontSize: "0.875rem",
+    fontFamily: "inherit",
+    outline: "none",
+    transition: "color .15s, box-shadow .15s, background-color .15s, border-color .15s",
+
+    "&::placeholder": {
+      color: "var(--md-sys-color-on-surface-variant)",
+    },
+
+    "&:focus-visible": {
+      borderColor: "var(--md-sys-color-outline)",
+      boxShadow: "0 0 0 3px color-mix(in oklab, var(--md-sys-color-outline) 30%, transparent)",
+    },
+
+    "&[aria-invalid='true']": {
+      borderColor: "var(--md-sys-color-error)",
+      boxShadow: "0 0 0 3px color-mix(in oklab, var(--md-sys-color-error) 20%, transparent)",
+    },
+
+    "&:disabled": {
+      opacity: 0.5,
+      pointerEvents: "none",
+      cursor: "not-allowed",
+    },
+  },
+});
+
+const Wrapper = styled("div", {
+  base: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+    width: "100%",
+  },
+});
+
+const Label = styled("label", {
+  base: {
+    fontSize: "0.8125rem",
+    fontWeight: 500,
+    color: "var(--md-sys-color-on-surface)",
+  },
+});
+
+const HelperRow = styled("div", {
+  base: {
+    display: "flex",
+    justifyContent: "space-between",
+    fontSize: "0.75rem",
+    color: "var(--md-sys-color-on-surface-variant)",
+  },
+});
+
 /**
- * Text fields let users enter text into a UI
- *
- * @library MDUI
- * @specification https://m3.material.io/components/text-fields
+ * Luma-styled text input.
  */
 export function TextField(props: Props) {
+  const [local, rest] = splitProps(props, [
+    "label",
+    "helper",
+    "variant",
+    "counter",
+    "autoFocus",
+  ]);
+
+  const [length, setLength] = createSignal(
+    typeof props.value === "string" ? props.value.length : 0,
+  );
+
   return (
-    <mdui-text-field
-      {...props}
-      // @codegen directives props=props include=autoComplete
-    />
+    <Wrapper>
+      <Show when={local.label}>
+        <Label>{local.label}</Label>
+      </Show>
+
+      <input
+        {...rest}
+        autofocus={local.autoFocus}
+        class={inputStyles()}
+        onInput={(event) => {
+          setLength(event.currentTarget.value.length);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const r = rest as any;
+          const handler = r.onInput ?? r.oninput;
+          if (typeof handler === "function") handler(event);
+        }}
+      />
+
+      <Show when={local.helper || (local.counter && rest.maxlength)}>
+        <HelperRow>
+          <span>{local.helper ?? ""}</span>
+          <Show when={local.counter && rest.maxlength}>
+            <span>
+              {length()}/{rest.maxlength}
+            </span>
+          </Show>
+        </HelperRow>
+      </Show>
+    </Wrapper>
   );
 }
 
+/**
+ * Select dropdown — still backed by MDUI for now.
+ */
 function Select(
   props: JSX.HTMLAttributes<HTMLInputElement> & {
     value?: string;
-    variant?: "filled" | "outlined";
+    variant?: Variant;
     required?: boolean;
     disabled?: boolean;
   },
@@ -104,18 +156,4 @@ function Select(
   return <mdui-select {...props} />;
 }
 
-/**
- * Select menu allows the user to pick a menu item
- *
- * Use the `MenuItem` component as the child:
- * ```tsx
- * <TextField.Select>
- *   <MenuItem value="itemA">hello!</MenuItem>
- *   <MenuItem value="itemB">world!</MenuItem>
- * </TextField.Select>
- * ```
- *
- * @library MDUI
- * @specification https://m3.material.io/components/menus
- */
 TextField.Select = Select;

@@ -6,11 +6,20 @@ import { State } from "..";
 
 import { AbstractStore } from ".";
 
+export type Palette = "luma" | "material-you";
+
+export const PALETTES: Palette[] = ["luma", "material-you"];
+
 export type TypeTheme = {
   /**
    * Base theme preset
    */
   preset: "you";
+
+  /**
+   * Active colour palette
+   */
+  palette: Palette;
 
   /**
    * Light/dark mode
@@ -72,6 +81,7 @@ export type TypeTheme = {
 
 export type SelectedTheme = Pick & {
   preset: "you";
+  palette: Palette;
   darkMode: boolean;
 
   accent: string;
@@ -120,9 +130,10 @@ export class Theme extends AbstractStore {
   default(): TypeTheme {
     return {
       preset: "you",
+      palette: "luma",
       mode: "dark",
 
-      m3Accent: "#C98A2E",
+      m3Accent: "#9C4F22",
       m3Contrast: 0.0,
       m3Variant: "tonal_spot",
 
@@ -147,6 +158,10 @@ export class Theme extends AbstractStore {
 
     if (["you", "neutral"].includes(input.preset!)) {
       data.preset = input.preset!;
+    }
+
+    if (PALETTES.includes(input.palette!)) {
+      data.palette = input.palette!;
     }
 
     if (typeof input.m3Contrast === "number") {
@@ -206,6 +221,7 @@ export class Theme extends AbstractStore {
           messageSize: opts.messageSize,
           messageGroupSpacing: opts.messageGroupSpacing,
           preset: "you",
+          palette: opts.palette,
           darkMode:
             opts.mode === "dark" ||
             (opts.mode === "system" && this.prefersDark()),
@@ -245,6 +261,20 @@ export class Theme extends AbstractStore {
    */
   setPreset(preset: TypeTheme["preset"]) {
     this.set("preset", preset);
+  }
+
+  /**
+   * Get current palette
+   */
+  get palette() {
+    return this.get().palette;
+  }
+
+  /**
+   * Set the active palette
+   */
+  setPalette(palette: Palette) {
+    this.set("palette", palette);
   }
 
   /**

@@ -1,5 +1,5 @@
 import { createFormControl, createFormGroup } from "solid-forms";
-import { For, Show, createEffect, on } from "solid-js";
+import { Show, createEffect, on } from "solid-js";
 
 import { Trans, useLingui } from "@lingui-solid/solid/macro";
 import type { API } from "stoat.js";
@@ -10,8 +10,8 @@ import {
   CircularProgress,
   Column,
   Form2,
-  MenuItem,
   Row,
+  Select,
   Text,
 } from "@revolt/ui";
 
@@ -253,72 +253,68 @@ export default function ServerOverview(props: ServerSettingsProps) {
           <Text class="title" size="small">
             <Trans>System message channels</Trans>
           </Text>
-          <Column>
-            <Text class="label">
-              <Trans>User Joined</Trans>
-            </Text>
-            <Form2.TextField.Select
-              control={editGroup.controls.sys_user_joined}
-            >
-              <MenuItem value="none">
-                <Trans>Disabled</Trans>
-              </MenuItem>
-              <For each={channels()}>
-                {(element) => (
-                  <MenuItem value={element.value}>{element.item.name}</MenuItem>
-                )}
-              </For>
-            </Form2.TextField.Select>
-          </Column>
-          <Column>
-            <Text class="label">
-              <Trans>User Left</Trans>
-            </Text>
-            <Form2.TextField.Select control={editGroup.controls.sys_user_left}>
-              <MenuItem value="none">
-                <Trans>Disabled</Trans>
-              </MenuItem>
-              <For each={channels()}>
-                {(element) => (
-                  <MenuItem value={element.value}>{element.item.name}</MenuItem>
-                )}
-              </For>
-            </Form2.TextField.Select>
-          </Column>
-          <Column>
-            <Text class="label">
-              <Trans>User Kicked</Trans>
-            </Text>
-            <Form2.TextField.Select
-              control={editGroup.controls.sys_user_kicked}
-            >
-              <MenuItem value="none">
-                <Trans>Disabled</Trans>
-              </MenuItem>
-              <For each={channels()}>
-                {(element) => (
-                  <MenuItem value={element.value}>{element.item.name}</MenuItem>
-                )}
-              </For>
-            </Form2.TextField.Select>
-          </Column>
-          <Column>
-            <Text class="label">
-              <Trans>User Banned</Trans>
-            </Text>
-            <Form2.TextField.Select
-              control={editGroup.controls.sys_user_banned}
-            >
-              <MenuItem value="none">
-                <Trans>Disabled</Trans>
-              </MenuItem>
-              <For each={channels()}>
-                {(element) => (
-                  <MenuItem value={element.value}>{element.item.name}</MenuItem>
-                )}
-              </For>
-            </Form2.TextField.Select>
-          </Column>
+          {(() => {
+            const channelOptions = () => [
+              { value: "none", label: <Trans>Disabled</Trans> },
+              ...channels().map((c) => ({ value: c.value, label: c.item.name })),
+            ];
+            return (
+              <>
+                <Column>
+                  <Text class="label">
+                    <Trans>User Joined</Trans>
+                  </Text>
+                  <Select
+                    options={channelOptions()}
+                    value={editGroup.controls.sys_user_joined.value}
+                    onChange={(value) => {
+                      editGroup.controls.sys_user_joined.setValue(value);
+                      editGroup.controls.sys_user_joined.markDirty(true);
+                    }}
+                  />
+                </Column>
+                <Column>
+                  <Text class="label">
+                    <Trans>User Left</Trans>
+                  </Text>
+                  <Select
+                    options={channelOptions()}
+                    value={editGroup.controls.sys_user_left.value}
+                    onChange={(value) => {
+                      editGroup.controls.sys_user_left.setValue(value);
+                      editGroup.controls.sys_user_left.markDirty(true);
+                    }}
+                  />
+                </Column>
+                <Column>
+                  <Text class="label">
+                    <Trans>User Kicked</Trans>
+                  </Text>
+                  <Select
+                    options={channelOptions()}
+                    value={editGroup.controls.sys_user_kicked.value}
+                    onChange={(value) => {
+                      editGroup.controls.sys_user_kicked.setValue(value);
+                      editGroup.controls.sys_user_kicked.markDirty(true);
+                    }}
+                  />
+                </Column>
+                <Column>
+                  <Text class="label">
+                    <Trans>User Banned</Trans>
+                  </Text>
+                  <Select
+                    options={channelOptions()}
+                    value={editGroup.controls.sys_user_banned.value}
+                    onChange={(value) => {
+                      editGroup.controls.sys_user_banned.setValue(value);
+                      editGroup.controls.sys_user_banned.markDirty(true);
+                    }}
+                  />
+                </Column>
+              </>
+            );
+          })()}
           <Row>
             <Form2.Reset group={editGroup} onReset={onReset} />
             <Form2.Submit group={editGroup} requireDirty>

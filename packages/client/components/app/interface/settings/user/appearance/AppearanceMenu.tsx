@@ -1,4 +1,4 @@
-import { For, Match, Switch } from "solid-js";
+import { Match, Show, Switch } from "solid-js";
 
 import { Trans } from "@lingui-solid/solid/macro";
 import { css } from "styled-system/css";
@@ -16,12 +16,11 @@ import {
   Button,
   Checkbox,
   Column,
-  MenuItem,
   MessageContainer,
   Row,
+  Select,
   Slider,
   Text,
-  TextField,
 } from "@revolt/ui";
 import {
   FONT_KEYS,
@@ -76,23 +75,44 @@ export function AppearanceMenu() {
           </Button>
         </Row>
 
-        {/* <Row justify="stretch">
+        <Text class="label">
+          <Trans>Palette</Trans>
+        </Text>
+        <Row justify="stretch">
           <Button
             group="connected-start"
-            groupActive={state.theme.preset === "stoat"}
-            onPress={() => state.theme.setPreset("stoat")}
+            groupActive={state.theme.palette === "luma"}
+            onPress={() => state.theme.setPalette("luma")}
           >
-            <Trans>Stoat</Trans>
+            <Trans>Luma</Trans>
           </Button>
           <Button
             group="connected-end"
-            groupActive={state.theme.preset === "you"}
-            onPress={() => state.theme.setPreset("you")}
+            groupActive={state.theme.palette === "material-you"}
+            onPress={() => state.theme.setPalette("material-you")}
           >
-            <Trans>Material You</Trans>
+            <Trans>Campfire Legacy</Trans>
           </Button>
-        </Row> */}
+        </Row>
 
+        <Show when={state.theme.palette === "material-you"}>
+          <Text class="label">
+            <Trans>Accent</Trans>
+          </Text>
+          <input
+            type="color"
+            value={state.theme.m3Accent}
+            onInput={(e) => state.theme.setM3Accent(e.currentTarget.value)}
+            class={css({
+              width: "100%",
+              height: "36px",
+              border: "1px solid var(--md-sys-color-outline-variant)",
+              borderRadius: "var(--borderRadius-md)",
+              background: "transparent",
+              cursor: "pointer",
+            })}
+          />
+        </Show>
       </Column>
 
       <Column>
@@ -163,32 +183,24 @@ export function AppearanceMenu() {
       <Text class="label">
         <Trans>Interface Font</Trans>
       </Text>
-      <TextField.Select
+      <Select
         title="Interface Font"
         value={state.theme.interfaceFont}
-        onChange={(e) =>
-          state.theme.setInterfaceFont(e.currentTarget.value as Fonts)
-        }
-      >
-        <For each={FONT_KEYS}>
-          {(key) => <MenuItem value={key}>{key}</MenuItem>}
-        </For>
-      </TextField.Select>
+        onChange={(value) => state.theme.setInterfaceFont(value as Fonts)}
+        options={FONT_KEYS.map((key) => ({ value: key, label: key }))}
+      />
 
       <Text class="label">
         <Trans>Monospace Font</Trans>
       </Text>
-      <TextField.Select
+      <Select
         title="Monospace Font"
         value={state.theme.monospaceFont}
-        onChange={(e) =>
-          state.theme.setMonospaceFont(e.currentTarget.value as MonospaceFonts)
+        onChange={(value) =>
+          state.theme.setMonospaceFont(value as MonospaceFonts)
         }
-      >
-        <For each={MONOSPACE_FONT_KEYS}>
-          {(key) => <MenuItem value={key}>{key}</MenuItem>}
-        </For>
-      </TextField.Select>
+        options={MONOSPACE_FONT_KEYS.map((key) => ({ value: key, label: key }))}
+      />
 
       <Column>
         <Text class="title" size="small">
@@ -210,48 +222,45 @@ export function AppearanceMenu() {
         <Text class="label">
           <Trans>Emoji Pack (affects your messages only)</Trans>
         </Text>
-        <TextField.Select
+        <Select
           value={state.settings.getValue("appearance:unicode_emoji")}
-          onChange={(e) =>
+          onChange={(value) =>
             state.settings.setValue(
               "appearance:unicode_emoji",
-              e.currentTarget.value as never,
+              value as never,
             )
           }
-        >
-          <For each={UNICODE_EMOJI_PACKS}>
-            {(pack) => <EmojiPack pack={pack} />}
-          </For>
-        </TextField.Select>
+          options={UNICODE_EMOJI_PACKS.map((pack) => ({
+            value: pack,
+            label: <EmojiPackLabel pack={pack} />,
+          }))}
+        />
       </Column>
     </Column>
   );
 }
 
 /**
- * Render an individual emoji pack
- * @param pack Pack
+ * Render an individual emoji pack option
  */
-function EmojiPack(props: { pack: UnicodeEmojiPacks }) {
+function EmojiPackLabel(props: { pack: UnicodeEmojiPacks }) {
   return (
-    <MenuItem value={props.pack}>
-      <Row>
-        <UnicodeEmoji emoji="😃" pack={props.pack} />
-        <UnicodeEmoji emoji="😂" pack={props.pack} />
-        <UnicodeEmoji emoji="😶‍🌫️" pack={props.pack} />
-        <UnicodeEmoji emoji="🤨" pack={props.pack} />
-        <UnicodeEmoji emoji="🤔" pack={props.pack} />
-        <Switch>
-          <Match when={props.pack === "fluent-3d"}>Fluent 3D</Match>
-          <Match when={props.pack === "fluent-color"}>Fluent Color</Match>
-          <Match when={props.pack === "fluent-flat"}>Fluent Flat</Match>
-          <Match when={props.pack === "mutant"}>Mutant Remix</Match>
-          <Match when={props.pack === "noto"}>Noto</Match>
-          <Match when={props.pack === "openmoji"}>OpenMoji</Match>
-          <Match when={props.pack === "twemoji"}>Twemoji</Match>
-        </Switch>
-      </Row>
-    </MenuItem>
+    <Row>
+      <UnicodeEmoji emoji="😃" pack={props.pack} />
+      <UnicodeEmoji emoji="😂" pack={props.pack} />
+      <UnicodeEmoji emoji="😶‍🌫️" pack={props.pack} />
+      <UnicodeEmoji emoji="🤨" pack={props.pack} />
+      <UnicodeEmoji emoji="🤔" pack={props.pack} />
+      <Switch>
+        <Match when={props.pack === "fluent-3d"}>Fluent 3D</Match>
+        <Match when={props.pack === "fluent-color"}>Fluent Color</Match>
+        <Match when={props.pack === "fluent-flat"}>Fluent Flat</Match>
+        <Match when={props.pack === "mutant"}>Mutant Remix</Match>
+        <Match when={props.pack === "noto"}>Noto</Match>
+        <Match when={props.pack === "openmoji"}>OpenMoji</Match>
+        <Match when={props.pack === "twemoji"}>Twemoji</Match>
+      </Switch>
+    </Row>
   );
 }
 

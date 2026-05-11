@@ -34,11 +34,6 @@ export const ListSubheader = List.Subheader;
 export const NavigationRailItem = NavigationRail.Item;
 
 /**
- * @deprecated Use the `TextField.Select` export instead!
- */
-export const Select = TextField.Select;
-
-/**
  * @deprecated Use the `Switch.Override` export instead!
  */
 export const OverrideSwitch = Switch.Override;

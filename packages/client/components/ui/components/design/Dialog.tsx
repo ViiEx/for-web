@@ -135,6 +135,9 @@ Dialog.Scrim = styled("div", {
 
     pointerEvents: "all",
 
+    background: "rgba(0, 0, 0, 0.3)",
+    backdropFilter: "blur(4px)",
+
     animationName: "scrimFadeIn",
     animationDuration: "0.1s",
     animationFillMode: "forwards",
@@ -146,6 +149,7 @@ Dialog.Scrim = styled("div", {
         animationName: "unset",
         pointerEvents: "none",
         background: "transparent",
+        backdropFilter: "none",
       },
     },
     padding: {
@@ -160,11 +164,9 @@ Dialog.Scrim = styled("div", {
     },
     dark: {
       true: {
-        "--background": "rgba(0, 0, 0, 0.9)",
+        background: "rgba(0, 0, 0, 0.6)",
       },
-      false: {
-        "--background": "rgba(0, 0, 0, 0.6)",
-      },
+      false: {},
     },
   },
   defaultVariants: {
@@ -180,13 +182,16 @@ const Container = styled("div", {
     padding: "24px",
     minWidth: "280px",
     maxWidth: "560px",
-    borderRadius: "28px",
+    borderRadius: "24px",
+    gap: "24px",
 
     display: "flex",
     flexDirection: "column",
 
     color: "var(--md-sys-color-on-surface)",
-    background: "var(--md-sys-color-surface-container-high)",
+    background: "var(--md-sys-color-surface-container)",
+    boxShadow:
+      "0 20px 25px -5px rgba(0, 0, 0, 0.35), 0 8px 10px -6px rgba(0, 0, 0, 0.3), inset 0 0 0 1px color-mix(in oklab, var(--md-sys-color-on-surface) 8%, transparent)",
   },
 });
 
@@ -200,8 +205,10 @@ const Icon = styled("div", {
 
 const Title = styled("span", {
   base: {
-    ...typography.raw({ class: "headline", size: "small" }),
-    marginBlockEnd: "16px",
+    fontSize: "1rem",
+    fontWeight: 500,
+    lineHeight: 1,
+    color: "var(--md-sys-color-on-surface)",
   },
   variants: {
     withIcon: {
@@ -217,6 +224,7 @@ const Title = styled("span", {
 
 const Content = styled("div", {
   base: {
+    fontSize: "0.875rem",
     color: "var(--md-sys-color-on-surface-variant)",
   },
 });
@@ -226,6 +234,5 @@ const Actions = styled("div", {
     gap: "8px",
     display: "flex",
     justifyContent: "end",
-    marginBlockStart: "24px",
   },
 });

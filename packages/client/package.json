@@ -69,6 +69,7 @@
     "@fontsource/space-mono": "^5.2.8",
     "@fontsource/ubuntu": "^5.2.7",
     "@fontsource/ubuntu-mono": "^5.2.7",
+    "@kobalte/core": "^0.13.11",
     "@lezer/highlight": "^1.2.1",
     "@lingui-solid/solid": "^5.1.4",
     "@livekit/components-core": "^0.9.3",

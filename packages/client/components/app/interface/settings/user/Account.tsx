@@ -1,6 +1,7 @@
-import { Match, Show, Switch, createMemo, createSignal } from "solid-js";
+import { JSX, Match, Show, Switch, createMemo, createSignal } from "solid-js";
 
 import { Trans } from "@lingui-solid/solid/macro";
+import { css } from "styled-system/css";
 
 import { useClient, useClientLifecycle } from "@revolt/client";
 import {
@@ -8,11 +9,24 @@ import {
   createOwnProfileResource,
 } from "@revolt/client/resources";
 import { useModals } from "@revolt/modal";
-import { CategoryButton, Column, Row, iconSize } from "@revolt/ui";
+import {
+  Column,
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+  Row,
+  iconSize,
+} from "@revolt/ui";
 
 import MdAlternateEmail from "@material-design-icons/svg/outlined/alternate_email.svg?component-solid";
 import MdBlock from "@material-design-icons/svg/outlined/block.svg?component-solid";
+import MdChevronRight from "@material-design-icons/svg/outlined/chevron_right.svg?component-solid";
 import MdDelete from "@material-design-icons/svg/outlined/delete.svg?component-solid";
+import MdExpandMore from "@material-design-icons/svg/outlined/expand_more.svg?component-solid";
 import MdLock from "@material-design-icons/svg/outlined/lock.svg?component-solid";
 import MdMail from "@material-design-icons/svg/outlined/mail.svg?component-solid";
 import MdPassword from "@material-design-icons/svg/outlined/password.svg?component-solid";
@@ -54,61 +68,132 @@ function EditAccount() {
   const [email, setEmail] = createSignal("•••••••••••@•••••••••••");
 
   return (
-    <CategoryButton.Group>
-      <CategoryButton
-        action="chevron"
-        onClick={() =>
+    <ItemGroup>
+      <Item
+        interactive
+        onPress={() =>
           openModal({
             type: "edit_username",
             client: client(),
           })
         }
-        icon={<MdAlternateEmail {...iconSize(22)} />}
-        description={client().user?.username}
       >
-        <Trans>Username</Trans>
-      </CategoryButton>
-      <CategoryButton
-        action="chevron"
-        onClick={() =>
+        <ItemMedia>
+          <MdAlternateEmail {...iconSize(22)} />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle>
+            <Trans>Username</Trans>
+          </ItemTitle>
+          <ItemDescription>{client().user?.username}</ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <MdChevronRight {...iconSize(20)} />
+        </ItemActions>
+      </Item>
+      <Item
+        interactive
+        onPress={() =>
           openModal({
             type: "edit_email",
             client: client(),
           })
         }
-        icon={<MdMail {...iconSize(22)} />}
-        description={
-          <Row>
-            {email()}{" "}
-            <Show when={email().startsWith("•")}>
-              <a
-                onClick={(event) => {
-                  event.stopPropagation();
-                  client().account.fetchEmail().then(setEmail);
-                }}
-              >
-                Reveal
-              </a>
-            </Show>
-          </Row>
-        }
       >
-        <Trans>Email</Trans>
-      </CategoryButton>
-      <CategoryButton
-        action="chevron"
-        onClick={() =>
+        <ItemMedia>
+          <MdMail {...iconSize(22)} />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle>
+            <Trans>Email</Trans>
+          </ItemTitle>
+          <ItemDescription>
+            <Row>
+              {email()}
+              <Show when={email().startsWith("•")}>
+                <a
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    client().account.fetchEmail().then(setEmail);
+                  }}
+                >
+                  Reveal
+                </a>
+              </Show>
+            </Row>
+          </ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <MdChevronRight {...iconSize(20)} />
+        </ItemActions>
+      </Item>
+      <Item
+        interactive
+        onPress={() =>
           openModal({
             type: "edit_password",
             client: client(),
           })
         }
-        icon={<MdPassword {...iconSize(22)} />}
-        description={"•••••••••"}
       >
-        <Trans>Password</Trans>
-      </CategoryButton>
-    </CategoryButton.Group>
+        <ItemMedia>
+          <MdPassword {...iconSize(22)} />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle>
+            <Trans>Password</Trans>
+          </ItemTitle>
+          <ItemDescription>•••••••••</ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <MdChevronRight {...iconSize(20)} />
+        </ItemActions>
+      </Item>
+    </ItemGroup>
+  );
+}
+
+const nestedGroup = css({
+  paddingLeft: "calc(var(--gap-lg) + 32px + var(--gap-md))",
+});
+
+const chevron = css({
+  transition: "transform 150ms ease",
+  "&[data-open=true]": {
+    transform: "rotate(180deg)",
+  },
+});
+
+/**
+ * Reusable collapsible Item
+ */
+function CollapseItem(props: {
+  icon: () => JSX.Element;
+  title: JSX.Element;
+  description: JSX.Element;
+  children: JSX.Element;
+}) {
+  const [open, setOpen] = createSignal(false);
+  return (
+    <>
+      <Item interactive onPress={() => setOpen(!open())}>
+        <ItemMedia>{props.icon()}</ItemMedia>
+        <ItemContent>
+          <ItemTitle>{props.title}</ItemTitle>
+          <ItemDescription>{props.description}</ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <MdExpandMore
+            {...iconSize(20)}
+            class={chevron}
+            data-open={open()}
+          />
+        </ItemActions>
+      </Item>
+      <Show when={open()}>
+        <div class={nestedGroup}>{props.children}</div>
+      </Show>
+    </>
   );
 }
 
@@ -120,39 +205,20 @@ function MultiFactorAuth() {
   const mfa = createMfaResource();
   const { openModal, mfaFlow, mfaEnableTOTP, showError } = useModals();
 
-  /**
-   * Show recovery codes
-   */
   async function showRecoveryCodes() {
     const ticket = await mfaFlow(mfa.data!);
-
     ticket!.fetchRecoveryCodes().then((codes) =>
-      openModal({
-        type: "mfa_recovery",
-        mfa: mfa.data!,
-        codes,
-      }),
+      openModal({ type: "mfa_recovery", mfa: mfa.data!, codes }),
     );
   }
 
-  /**
-   * Generate recovery codes
-   */
   async function generateRecoveryCodes() {
     const ticket = await mfaFlow(mfa.data!);
-
     ticket!.generateRecoveryCodes().then((codes) =>
-      openModal({
-        type: "mfa_recovery",
-        mfa: mfa.data!,
-        codes,
-      }),
+      openModal({ type: "mfa_recovery", mfa: mfa.data!, codes }),
     );
   }
 
-  /**
-   * Configure authenticator app
-   */
   async function setupAuthenticatorApp() {
     const ticket = await mfaFlow(mfa.data!);
     const secret = await ticket!.generateAuthenticatorSecret();
@@ -161,7 +227,6 @@ function MultiFactorAuth() {
     while (!success) {
       try {
         const code = await mfaEnableTOTP(secret, client().user!.username);
-
         if (code) {
           await mfa.data!.enableAuthenticator(code);
           success = true;
@@ -172,17 +237,14 @@ function MultiFactorAuth() {
     }
   }
 
-  /**
-   * Disable authenticator app
-   */
   function disableAuthenticatorApp() {
     mfaFlow(mfa.data!).then((ticket) => ticket!.disableAuthenticator());
   }
 
   return (
-    <CategoryButton.Group>
-      <CategoryButton.Collapse
-        icon={<MdVerifiedUser {...iconSize(22)} />}
+    <ItemGroup>
+      <CollapseItem
+        icon={() => <MdVerifiedUser {...iconSize(22)} />}
         title={<Trans>Recovery Codes</Trans>}
         description={
           <Trans>
@@ -193,67 +255,92 @@ function MultiFactorAuth() {
       >
         <Switch
           fallback={
-            <CategoryButton
-              icon="blank"
+            <Item
+              interactive
               disabled={mfa.isLoading}
-              onClick={generateRecoveryCodes}
-              description={<Trans>Setup recovery codes</Trans>}
+              onPress={generateRecoveryCodes}
             >
-              <Trans>Generate Recovery Codes</Trans>
-            </CategoryButton>
+              <ItemContent>
+                <ItemTitle>
+                  <Trans>Generate Recovery Codes</Trans>
+                </ItemTitle>
+                <ItemDescription>
+                  <Trans>Setup recovery codes</Trans>
+                </ItemDescription>
+              </ItemContent>
+            </Item>
           }
         >
           <Match when={!mfa.isLoading && mfa.data?.recoveryEnabled}>
-            <CategoryButton
-              icon="blank"
-              description={<Trans>Get active recovery codes</Trans>}
-              onClick={showRecoveryCodes}
-            >
-              <Trans>View Recovery Codes</Trans>
-            </CategoryButton>
-            <CategoryButton
-              icon="blank"
-              description={<Trans>Get a new set of recovery codes</Trans>}
-              onClick={generateRecoveryCodes}
-            >
-              <Trans>Reset Recovery Codes</Trans>
-            </CategoryButton>
+            <Item interactive onPress={showRecoveryCodes}>
+              <ItemContent>
+                <ItemTitle>
+                  <Trans>View Recovery Codes</Trans>
+                </ItemTitle>
+                <ItemDescription>
+                  <Trans>Get active recovery codes</Trans>
+                </ItemDescription>
+              </ItemContent>
+            </Item>
+            <Item interactive onPress={generateRecoveryCodes}>
+              <ItemContent>
+                <ItemTitle>
+                  <Trans>Reset Recovery Codes</Trans>
+                </ItemTitle>
+                <ItemDescription>
+                  <Trans>Get a new set of recovery codes</Trans>
+                </ItemDescription>
+              </ItemContent>
+            </Item>
           </Match>
         </Switch>
-      </CategoryButton.Collapse>
-      <CategoryButton.Collapse
-        icon={<MdLock {...iconSize(22)} />}
+      </CollapseItem>
+      <CollapseItem
+        icon={() => <MdLock {...iconSize(22)} />}
         title={<Trans>Authenticator App</Trans>}
         description={<Trans>Configure one-time password authentication</Trans>}
       >
         <Switch
           fallback={
-            <CategoryButton
-              icon="blank"
+            <Item
+              interactive
               disabled={mfa.isLoading}
-              onClick={setupAuthenticatorApp}
-              description={<Trans>Setup one-time password authenticator</Trans>}
+              onPress={setupAuthenticatorApp}
             >
-              <Trans>Enable Authenticator</Trans>
-            </CategoryButton>
+              <ItemContent>
+                <ItemTitle>
+                  <Trans>Enable Authenticator</Trans>
+                </ItemTitle>
+                <ItemDescription>
+                  <Trans>Setup one-time password authenticator</Trans>
+                </ItemDescription>
+              </ItemContent>
+            </Item>
           }
         >
           <Match when={!mfa.isLoading && mfa.data?.authenticatorEnabled}>
-            <CategoryButton
-              icon="blank"
-              description={
-                <Trans>Disable one-time password authenticator</Trans>
-              }
-              onClick={disableAuthenticatorApp}
-            >
-              <Trans>Remove Authenticator</Trans>
-            </CategoryButton>
+            <Item interactive onPress={disableAuthenticatorApp}>
+              <ItemContent>
+                <ItemTitle>
+                  <Trans>Remove Authenticator</Trans>
+                </ItemTitle>
+                <ItemDescription>
+                  <Trans>Disable one-time password authenticator</Trans>
+                </ItemDescription>
+              </ItemContent>
+            </Item>
           </Match>
         </Switch>
-      </CategoryButton.Collapse>
-    </CategoryButton.Group>
+      </CollapseItem>
+    </ItemGroup>
   );
 }
+
+const dangerIcon = css({
+  "& svg": {
+    fill: "var(--md-sys-color-error) !important",
+  },
+});
 
 /**
  * Manage account
@@ -270,18 +357,12 @@ function ManageAccount() {
       0,
   );
 
-  /**
-   * Disable account
-   */
   function disableAccount() {
     mfaFlow(mfa.data!).then((ticket) =>
       ticket!.disableAccount().then(() => logout()),
     );
   }
 
-  /**
-   * Delete account
-   */
   function deleteAccount() {
     mfaFlow(mfa.data!).then((ticket) =>
       ticket!.deleteAccount().then(() => logout()),
@@ -289,42 +370,63 @@ function ManageAccount() {
   }
 
   return (
-    <CategoryButton.Group>
-      <CategoryButton
-        action="chevron"
+    <ItemGroup>
+      <Item
+        interactive
         disabled={mfa.isLoading}
-        onClick={disableAccount}
-        icon={<MdBlock {...iconSize(22)} fill="var(--md-sys-color-error)" />}
-        description={
-          <Trans>
-            You won't be able to access your account unless you contact support
-            - however, your data will not be deleted.
-          </Trans>
-        }
+        onPress={disableAccount}
       >
-        <Trans>Disable Account</Trans>
-      </CategoryButton>
-      <CategoryButton
-        action={stillOwnServers() ? undefined : "chevron"}
-        disabled={mfa.isLoading || stillOwnServers()}
-        onClick={deleteAccount}
-        icon={<MdDelete {...iconSize(22)} fill="var(--md-sys-color-error)" />}
-        description={
-          <Trans>
-            Your account and all of your data (including your messages and
-            friends list) will be queued for deletion. A confirmation email will
-            be sent - you can cancel this within 7 days by contacting support.
-          </Trans>
-        }
-      >
-        <Switch fallback={<Trans>Delete Account</Trans>}>
-          <Match when={stillOwnServers()}>
+        <ItemMedia class={dangerIcon}>
+          <MdBlock {...iconSize(22)} />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle>
+            <Trans>Disable Account</Trans>
+          </ItemTitle>
+          <ItemDescription>
             <Trans>
-              Cannot delete account until servers are deleted or transferred
+              You won't be able to access your account unless you contact
+              support - however, your data will not be deleted.
             </Trans>
-          </Match>
-        </Switch>
-      </CategoryButton>
-    </CategoryButton.Group>
+          </ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <MdChevronRight {...iconSize(20)} />
+        </ItemActions>
+      </Item>
+      <Item
+        interactive
+        disabled={mfa.isLoading || stillOwnServers()}
+        onPress={deleteAccount}
+      >
+        <ItemMedia class={dangerIcon}>
+          <MdDelete {...iconSize(22)} />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle>
+            <Switch fallback={<Trans>Delete Account</Trans>}>
+              <Match when={stillOwnServers()}>
+                <Trans>
+                  Cannot delete account until servers are deleted or transferred
+                </Trans>
+              </Match>
+            </Switch>
+          </ItemTitle>
+          <ItemDescription>
+            <Trans>
+              Your account and all of your data (including your messages and
+              friends list) will be queued for deletion. A confirmation email
+              will be sent - you can cancel this within 7 days by contacting
+              support.
+            </Trans>
+          </ItemDescription>
+        </ItemContent>
+        <Show when={!stillOwnServers()}>
+          <ItemActions>
+            <MdChevronRight {...iconSize(20)} />
+          </ItemActions>
+        </Show>
+      </Item>
+    </ItemGroup>
   );
 }

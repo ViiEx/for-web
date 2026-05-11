@@ -1,5 +1,5 @@
 import { createFormControl, createFormGroup } from "solid-forms";
-import { For, Match, Switch } from "solid-js";
+import { Match, Switch } from "solid-js";
 
 import { Trans, useLingui } from "@lingui-solid/solid/macro";
 import { API, Message as MessageI, Server, User } from "stoat.js";
@@ -11,10 +11,9 @@ import {
   Column,
   Dialog,
   DialogProps,
-  FloatingSelect,
   Form2,
   Initials,
-  MenuItem,
+  Select,
 } from "@revolt/ui";
 
 import { useModals } from "..";
@@ -181,25 +180,19 @@ export function ReportContentModal(
             )}
           </div>
 
-          <FloatingSelect
+          <Select
             label={t`Reason for report`}
             required
             value={group.controls.category.value}
-            onChange={(
-              e: Event & { currentTarget: HTMLElement; target: Element },
-            ) =>
-              group.controls.category.setValue(
-                e.currentTarget.getAttribute("value") || "",
-              )
-            }
-          >
-            <MenuItem value="">
-              <Trans>Please select a reason</Trans>
-            </MenuItem>
-            <For each={reasons}>
-              {(value) => <MenuItem value={value}>{strings[value]}</MenuItem>}
-            </For>
-          </FloatingSelect>
+            onChange={(value) => group.controls.category.setValue(value)}
+            options={[
+              { value: "", label: <Trans>Please select a reason</Trans> },
+              ...reasons.map((value) => ({
+                value,
+                label: strings[value],
+              })),
+            ]}
+          />
 
           {/* TODO: use TextEditor? */}
           <Form2.TextField

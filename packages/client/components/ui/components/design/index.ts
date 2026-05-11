@@ -36,12 +36,26 @@ export { DataTable } from "./DataTable";
 export { type DialogProps, Dialog } from "./Dialog";
 export { FloatingSelect } from "./FloatingSelect";
 export { IconButton } from "./IconButton";
+export {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemFooter,
+  ItemGroup,
+  ItemHeader,
+  ItemMedia,
+  ItemSeparator,
+  ItemTitle,
+} from "./Item";
 export { List } from "./List";
 export { CircularProgress } from "./LoadingProgress";
 export { MenuItem } from "./Menu";
 export { MenuButton } from "./MenuButton";
 export { Radio2 } from "./Radio";
 export { Ripple } from "./Ripple";
+export { Select, type SelectOption } from "./Select";
+export { Separator } from "./Separator";
 export { Slider } from "./Slider";
 export {
   type ShowSnackbarOptions,

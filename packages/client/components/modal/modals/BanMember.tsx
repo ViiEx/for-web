@@ -7,9 +7,8 @@ import {
   Column,
   Dialog,
   DialogProps,
-  FloatingSelect,
   Form2,
-  MenuItem,
+  Select,
   Text,
 } from "@revolt/ui";
 
@@ -78,36 +77,21 @@ export function BanMemberModal(
             label={t`Reason`}
             placeholder={t`User broke a certain rule…`}
           />
-          <FloatingSelect
+          <Select
             label={t`Delete Message History`}
             value={group.controls.deleteMessageSeconds.value}
-            onChange={(
-              e: Event & { currentTarget: HTMLElement; target: Element },
-            ) =>
-              group.controls.deleteMessageSeconds.setValue(
-                e.currentTarget.getAttribute("value") || "0",
-              )
+            onChange={(value) =>
+              group.controls.deleteMessageSeconds.setValue(value)
             }
-          >
-            <MenuItem value="0">
-              <Trans>Don't delete messages</Trans>
-            </MenuItem>
-            <MenuItem value="3600">
-              <Trans>1 hour</Trans>
-            </MenuItem>
-            <MenuItem value="21600">
-              <Trans>6 hours</Trans>
-            </MenuItem>
-            <MenuItem value="86400">
-              <Trans>1 day</Trans>
-            </MenuItem>
-            <MenuItem value="259200">
-              <Trans>3 days</Trans>
-            </MenuItem>
-            <MenuItem value="604800">
-              <Trans>7 days</Trans>
-            </MenuItem>
-          </FloatingSelect>
+            options={[
+              { value: "0", label: <Trans>Don't delete messages</Trans> },
+              { value: "3600", label: <Trans>1 hour</Trans> },
+              { value: "21600", label: <Trans>6 hours</Trans> },
+              { value: "86400", label: <Trans>1 day</Trans> },
+              { value: "259200", label: <Trans>3 days</Trans> },
+              { value: "604800", label: <Trans>7 days</Trans> },
+            ]}
+          />
         </Column>
       </form>
     </Dialog>

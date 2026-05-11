@@ -1,4 +1,4 @@
-import { Show, createRenderEffect, on, splitProps } from "solid-js";
+import { Show, splitProps } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
 
 import { AriaButtonProps, createButton } from "@solid-aria/button";
@@ -22,65 +22,12 @@ type Props = Omit<
 };
 
 /**
- * Buttons prompt most actions in a UI
+ * Luma-styled button. Variant/size/group props match the previous MD3 API
+ * so call-sites don't need to change.
  *
- * If you wish to create standard button groups:
- *
- * ```tsx
- * <Row>
- *   <Button
- *     onPress={() => setActiveA()}
- *     groupActive={activeA()}
- *     group="standard"
- *   >
- *     Button A
- *   </Button>
- *   <Button
- *     onPress={() => setActiveB()}
- *     groupActive={activeB()}
- *     group="standard"
- *   >
- *     Button B
- *   </Button>
- *   <Button
- *     onPress={() => setActiveC()}
- *     groupActive={activeC()}
- *     group="standard"
- *   >
- *     Button C
- *   </Button>
- * </Row>
- * ```
- *
- * If you wish to create connected button groups:
- *
- * ```tsx
- * <Row>
- *   <Button
- *     onPress={() => setActiveA()}
- *     groupActive={activeA()}
- *     group="connected-start"
- *   >
- *     Button A
- *   </Button>
- *   <Button
- *     onPress={() => setActiveB()}
- *     groupActive={activeB()}
- *     group="connected"
- *   >
- *     Button B
- *   </Button>
- *   <Button
- *     onPress={() => setActiveC()}
- *     groupActive={activeC()}
- *     group="connected-end"
- *   >
- *     Button C
- *   </Button>
- * </Row>
- * ```
- *
- * @specification https://m3.material.io/components/buttons
+ * Connected groups: use `group="connected-start" | "connected" | "connected-end"`
+ * on adjacent buttons inside a `<Row>`. The active one is filled, inactive ones
+ * render outlined and share borders to form one connected pill.
  */
 export function Button(props: Props) {
   const [passthrough, propsRest] = splitProps(props, [
@@ -99,24 +46,14 @@ export function Button(props: Props) {
   ]);
   let ref: HTMLButtonElement | undefined;
 
-  const shape = () =>
-    style.group
-      ? style.groupActive !== (style.group === "standard")
-        ? "round"
-        : "square"
-      : style.shape;
-
-  const variant = () =>
-    style.group ? (style.groupActive ? "filled" : "tonal") : style.variant;
-
-  let _permitAnimation = false;
-  createRenderEffect(
-    on(
-      () => shape(),
-      () => (_permitAnimation = true),
-      { defer: true },
-    ),
-  );
+  // Resolve effective variant from group/groupActive when the button is part
+  // of a connected/standard group; otherwise honour the explicit variant.
+  const variant = () => {
+    if (style.group) {
+      return style.groupActive ? "filled" : "outlined";
+    }
+    return style.variant;
+  };
 
   const { buttonProps } = createButton(rest, () => ref);
   return (
@@ -125,12 +62,11 @@ export function Button(props: Props) {
       {...buttonProps}
       ref={ref}
       class={button({
-        shape: shape(),
+        shape: style.shape,
         variant: variant(),
         size: style.size,
         group: style.group,
         disabled: buttonProps.disabled,
-        _permitAnimation,
       })}
       style={{
         "background-color": style.bg,
@@ -155,173 +91,196 @@ const button = cva({
     paddingInline: "var(--padding-inline)",
 
     flexShrink: 0,
-    display: "flex",
+    display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
+    gap: "6px",
 
     fontWeight: 500,
     fontFamily: "inherit",
+    whiteSpace: "nowrap",
+    userSelect: "none",
 
     cursor: "pointer",
-    border: "none",
-    transition: "var(--transitions-medium) all",
+    border: "1px solid transparent",
+    borderRadius: "var(--borderRadius-xxl)",
+    outline: "none",
+    transition:
+      "background-color .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .05s ease",
 
     color: "var(--color)",
     fill: "var(--color)",
+
+    "&:focus-visible": {
+      borderColor: "var(--md-sys-color-outline)",
+      boxShadow:
+        "0 0 0 3px color-mix(in oklab, var(--md-sys-color-outline) 30%, transparent)",
+    },
+
+    "&:active:not([aria-haspopup])": {
+      transform: "translateY(1px)",
+    },
   },
   variants: {
-    /**
-     * Variant is equivalent to 'color' in Material spec
-     */
     variant: {
       elevated: {
-        boxShadow: "0 0.5px 1.5px #0004",
         background: "var(--md-sys-color-surface-container-low)",
-        "--color": "var(--md-sys-color-primary)",
+        "--color": "var(--md-sys-color-on-surface)",
+        boxShadow: "0 0.5px 1.5px #0004",
+        "&:hover:not(:disabled)": {
+          background: "var(--md-sys-color-surface-container-high)",
+        },
       },
       filled: {
         background: "var(--md-sys-color-primary)",
         "--color": "var(--md-sys-color-on-primary)",
+        "&:hover:not(:disabled)": {
+          background:
+            "color-mix(in oklab, var(--md-sys-color-primary) 80%, transparent)",
+        },
       },
       tonal: {
         background: "var(--md-sys-color-secondary-container)",
         "--color": "var(--md-sys-color-on-secondary-container)",
+        "&:hover:not(:disabled)": {
+          background:
+            "color-mix(in oklab, var(--md-sys-color-secondary-container) 80%, transparent)",
+        },
       },
       outlined: {
-        border: "1px solid var(--md-sys-color-outline-variant)",
-        "--color": "var(--md-sys-color-on-surface-variant)",
+        background: "transparent",
+        borderColor: "var(--md-sys-color-outline-variant)",
+        "--color": "var(--md-sys-color-on-surface)",
+        "&:hover:not(:disabled)": {
+          background:
+            "color-mix(in oklab, var(--md-sys-color-on-surface) 6%, transparent)",
+        },
       },
       text: {
-        "--color": "var(--md-sys-color-primary)",
+        background: "transparent",
+        "--color": "var(--md-sys-color-on-surface)",
+        "&:hover:not(:disabled)": {
+          background:
+            "color-mix(in oklab, var(--md-sys-color-on-surface) 8%, transparent)",
+        },
       },
       _error: {
+        background:
+          "color-mix(in oklab, var(--md-sys-color-error) 15%, transparent)",
+        "--color": "var(--md-sys-color-error)",
+        "&:hover:not(:disabled)": {
+          background:
+            "color-mix(in oklab, var(--md-sys-color-error) 22%, transparent)",
+        },
+        "&:focus-visible": {
+          borderColor:
+            "color-mix(in oklab, var(--md-sys-color-error) 40%, transparent)",
+          boxShadow:
+            "0 0 0 3px color-mix(in oklab, var(--md-sys-color-error) 20%, transparent)",
+        },
+      },
+
+      // Deprecated aliases kept for back-compat with old call-sites.
+      success: {
+        background: "var(--md-sys-color-secondary-container)",
+        "--color": "var(--md-sys-color-on-secondary-container)",
+      },
+      warning: {
+        background:
+          "color-mix(in oklab, var(--md-sys-color-error) 15%, transparent)",
+        "--color": "var(--md-sys-color-error)",
+      },
+      error: {
         background: "var(--md-sys-color-error)",
         "--color": "var(--md-sys-color-on-error)",
       },
-
-      // Old entries:
-
-      /**
-       * @deprecated
-       */
-      success: {
-        fill: "var(--unset-fg)",
-        color: "var(--unset-fg)",
-        background: "var(--unset-bg)",
-      },
-      /**
-       * @deprecated
-       */
-      warning: {
-        fill: "var(--unset-fg)",
-        color: "var(--unset-fg)",
-        background: "var(--unset-bg)",
-      },
-      /**
-       * @deprecated
-       */
-      error: {
-        fill: "var(--unset-fg)",
-        color: "var(--unset-fg)",
-        background: "var(--unset-bg)",
-      },
-      /**
-       * @deprecated use filled
-       */
       primary: {
-        fill: "var(--unset-fg)",
-        color: "var(--unset-fg)",
-        background: "var(--unset-bg)",
+        background: "var(--md-sys-color-primary)",
+        "--color": "var(--md-sys-color-on-primary)",
       },
-      /**
-       * @deprecated use tonal
-       */
       secondary: {
-        fill: "var(--unset-fg)",
-        color: "var(--unset-fg)",
-        background: "var(--unset-bg)",
+        background: "var(--md-sys-color-secondary-container)",
+        "--color": "var(--md-sys-color-on-secondary-container)",
       },
-      /**
-       * @deprecated use text instead
-       */
       plain: {
-        fill: "var(--unset-fg)",
-        color: "var(--unset-fg)",
-        background: "var(--unset-bg)",
+        background: "transparent",
+        "--color": "var(--md-sys-color-on-surface)",
+        "&:hover:not(:disabled)": {
+          background:
+            "color-mix(in oklab, var(--md-sys-color-on-surface) 8%, transparent)",
+        },
       },
     },
-    /**
-     * Expressive shapes
-     */
     shape: {
       round: {
         borderRadius: "var(--borderRadius-full)",
       },
-      square: {},
+      square: {
+        borderRadius: "var(--borderRadius-md)",
+      },
     },
-    /**
-     * Expressive button groups
-     */
     group: {
-      "connected-start": {},
-      "connected-end": {},
-      connected: {},
+      "connected-start": {
+        borderTopRightRadius: "0",
+        borderBottomRightRadius: "0",
+      },
+      "connected-end": {
+        borderTopLeftRadius: "0",
+        borderBottomLeftRadius: "0",
+        borderLeft: "0",
+        // Cancel the parent flex `gap` so buttons sit flush, then overlap 1px
+        // so the shared border doesn't double up.
+        marginInlineStart: "calc(-1 * var(--gap-md) - 1px)",
+      },
+      connected: {
+        borderRadius: "0",
+        borderLeft: "0",
+        marginInlineStart: "calc(-1 * var(--gap-md) - 1px)",
+      },
       standard: {},
     },
-    /**
-     * Internal helper for expressive button animation
-     */
-    _permitAnimation: {
-      true: {},
-      false: {},
-    },
-    /**
-     * Expressive sizes
-     */
     size: {
       xs: {
-        height: "32px",
-        "--padding-inline": "12px",
+        height: "24px",
+        "--padding-inline": "10px",
+        fontSize: "0.75rem",
       },
       sm: {
+        height: "36px",
+        "--padding-inline": "12px",
+        fontSize: "0.875rem",
+      },
+      md: {
         height: "40px",
         "--padding-inline": "16px",
       },
-      md: {
+      lg: {
+        height: "48px",
+        "--padding-inline": "20px",
+      },
+      xl: {
         height: "56px",
         "--padding-inline": "24px",
       },
-      lg: {
-        height: "96px",
-        "--padding-inline": "48px",
-      },
-      xl: {
-        height: "136px",
-        "--padding-inline": "64px",
-      },
-
-      // Old code:
       icon: {
         width: "36px",
         height: "36px",
+        "--padding-inline": "0",
       },
       /**
        * @deprecated
        */
       small: {
-        height: "40px",
-        paddingInline: "16px",
-        borderRadius: "12px",
-
-        ...typography.raw(),
+        height: "32px",
+        "--padding-inline": "12px",
+        fontSize: "0.8125rem",
       },
       /**
        * @deprecated
        */
       normal: {
-        height: "38px",
-        minWidth: "96px",
-        padding: "2px 16px",
+        height: "36px",
+        "--padding-inline": "16px",
         fontSize: "0.8125rem",
       },
       /**
@@ -331,6 +290,7 @@ const button = cva({
         width: "42px",
         height: "42px",
         borderRadius: "var(--borderRadius-lg)",
+        "--padding-inline": "0",
       },
       /**
        * @deprecated
@@ -342,9 +302,11 @@ const button = cva({
        * @deprecated
        */
       inline: {
+        height: "auto",
         padding: "var(--gap-xs) var(--gap-md)",
         fontSize: "0.8125rem",
         borderRadius: "var(--borderRadius-md)",
+        "--padding-inline": "0",
       },
       /**
        * @deprecated
@@ -353,166 +315,18 @@ const button = cva({
         borderRadius: "0",
       },
     },
-    /**
-     * Whether the button is disabled
-     */
     disabled: {
       true: {
         cursor: "not-allowed",
+        opacity: 0.5,
+        pointerEvents: "none",
       },
       false: {},
     },
   },
   defaultVariants: {
     size: "sm",
-    shape: "round",
     variant: "filled",
     disabled: false,
   },
-  compoundVariants: [
-    // disabled styles
-    {
-      variant: ["elevated", "filled", "tonal", "outlined"],
-      disabled: true,
-      css: {
-        "--color":
-          "color-mix(in srgb, 38% var(--md-sys-color-on-surface), transparent)",
-        background:
-          "color-mix(in srgb, 10% var(--md-sys-color-on-surface), transparent)",
-      },
-    },
-    {
-      variant: "text",
-      disabled: true,
-      css: {
-        "--color":
-          "color-mix(in srgb, 38% var(--md-sys-color-on-surface), transparent)",
-        background:
-          "color-mix(in srgb, 10% var(--md-sys-color-on-surface), transparent)",
-      },
-    },
-
-    // border radius for different squared sizes
-    {
-      shape: "square",
-      size: ["sm", "xs"],
-      css: {
-        borderRadius: "var(--borderRadius-md)",
-      },
-    },
-    {
-      shape: "square",
-      size: "md",
-      css: {
-        borderRadius: "var(--borderRadius-lg)",
-      },
-    },
-    {
-      shape: "square",
-      size: ["xl", "lg"],
-      css: {
-        borderRadius: "var(--borderRadius-xl)",
-      },
-    },
-
-    // hard-code values for rounded connected group shapes
-    {
-      shape: "round",
-      size: ["sm", "xs"],
-      css: {
-        borderRadius: "48px",
-      },
-    },
-    {
-      shape: "round",
-      size: ["md"],
-      css: {
-        borderRadius: "64px",
-      },
-    },
-    {
-      shape: "round",
-      size: ["xl", "lg"],
-      css: {
-        borderRadius: "160px",
-      },
-    },
-
-    // left-side connected group
-    {
-      shape: "square",
-      size: ["sm", "xs"],
-      group: "connected-start",
-      css: {
-        borderRadius: "48px var(--borderRadius-md) var(--borderRadius-md) 48px",
-      },
-    },
-    {
-      shape: "square",
-      size: "md",
-      group: "connected-start",
-      css: {
-        borderRadius: "64px var(--borderRadius-lg) var(--borderRadius-lg) 64px",
-      },
-    },
-    {
-      shape: "square",
-      size: ["xl", "lg"],
-      group: "connected-start",
-      css: {
-        borderRadius:
-          "160px var(--borderRadius-xl) var(--borderRadius-xl) 160px",
-      },
-    },
-
-    // right-side connected group
-    {
-      shape: "square",
-      size: ["sm", "xs"],
-      group: "connected-end",
-      css: {
-        borderRadius: "var(--borderRadius-md) 48px 48px var(--borderRadius-md)",
-      },
-    },
-    {
-      shape: "square",
-      size: "md",
-      group: "connected-end",
-      css: {
-        borderRadius: "var(--borderRadius-lg) 64px 64px var(--borderRadius-lg)",
-      },
-    },
-    {
-      shape: "square",
-      size: ["xl", "lg"],
-      group: "connected-end",
-      css: {
-        borderRadius:
-          "var(--borderRadius-xl) 160px 160px var(--borderRadius-xl)",
-      },
-    },
-
-    // run animation when group activates
-    // connected doesn't actually animate:
-    // {
-    //   shape: "round",
-    //   group: ["connected-start", "connected-end", "connected"],
-    //   _permitAnimation: true,
-    //   css: {
-    //     animationName: "materialPhysicsButtonSelect",
-    //     animationDuration: "0.3s",
-    //     animationFillMode: "forwards",
-    //   },
-    // },
-    {
-      shape: "square",
-      group: ["standard"],
-      _permitAnimation: true,
-      css: {
-        animationName: "materialPhysicsButtonSelect",
-        animationDuration: "0.3s",
-        animationFillMode: "forwards",
-      },
-    },
-  ],
 });

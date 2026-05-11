@@ -5,9 +5,14 @@ import { Trans } from "@lingui-solid/solid/macro";
 
 import { useState } from "@revolt/state";
 import {
-  CategoryButton,
-  CategorySelectOption,
   Column,
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+  Select,
   Slider,
   Text,
 } from "@revolt/ui";
@@ -19,11 +24,11 @@ import { Symbol } from "@revolt/ui/components/utils/Symbol";
 export function VoiceInputOptions() {
   return (
     <Column>
-      <CategoryButton.Group>
+      <ItemGroup>
         <SelectInput kind="audioinput" />
         <SelectInput kind="audiooutput" />
         {/* <SelectInput kind="videoinput" /> TODO O.o */}
-      </CategoryButton.Group>
+      </ItemGroup>
       <VolumeSliders />
     </Column>
   );
@@ -41,53 +46,51 @@ function SelectInput(props: { kind: MediaDeviceKind }) {
       ? "preferredAudioInputDevice"
       : "preferredAudioOutputDevice";
 
-  const icon = () =>
-    props.kind === "audioinput" ? (
-      <Symbol>mic</Symbol>
-    ) : (
-      <Symbol>speaker</Symbol>
-    );
-
-  const title = () =>
-    props.kind === "audioinput" ? (
-      <Trans>Select audio input</Trans>
-    ) : (
-      <Trans>Select audio output</Trans>
-    );
-
   const activeId = createMemo(() => {
     const active = media().activeDeviceId();
     return (active === "default" ? state.voice[setKey()] : undefined) ?? active;
   });
 
-  const devOpts = createMemo(() => {
-    const devs = media().devices(),
-      opts: { [k in string]: CategorySelectOption } = {};
-
-    //Ensure default is at top
-    let d = devs.find((d) => d.deviceId === "default");
-    if (d) opts.default = { title: d.label };
-
-    for (d of devs)
-      if (d.deviceId !== "default") opts[d.deviceId] = { title: d.label };
+  const options = createMemo(() => {
+    const devs = media().devices();
+    const opts: { value: string; label: string }[] = [];
+    const def = devs.find((d) => d.deviceId === "default");
+    if (def) opts.push({ value: "default", label: def.label });
+    for (const d of devs)
+      if (d.deviceId !== "default")
+        opts.push({ value: d.deviceId, label: d.label });
     return opts;
   });
 
   return (
-    <CategoryButton.Select
-      icon={icon()}
-      title={title()}
-      value={activeId()}
-      options={devOpts()}
-      onUpdate={(id) => {
-        const mMedia = media(),
-          dev = mMedia.devices().find((d) => d.deviceId === id);
-        if (dev) {
-          state.voice[setKey()] = dev.deviceId;
-          mMedia.setActiveMediaDevice(dev.deviceId);
-        }
-      }}
-    />
+    <Item>
+      <ItemMedia>
+        <Symbol>{props.kind === "audioinput" ? "mic" : "speaker"}</Symbol>
+      </ItemMedia>
+      <ItemContent>
+        <ItemTitle>
+          {props.kind === "audioinput" ? (
+            <Trans>Audio Input</Trans>
+          ) : (
+            <Trans>Audio Output</Trans>
+          )}
+        </ItemTitle>
+      </ItemContent>
+      <ItemActions>
+        <Select
+          value={activeId()}
+          options={options()}
+          onChange={(id) => {
+            const mMedia = media();
+            const dev = mMedia.devices().find((d) => d.deviceId === id);
+            if (dev) {
+              state.voice[setKey()] = dev.deviceId;
+              mMedia.setActiveMediaDevice(dev.deviceId);
+            }
+          }}
+        />
+      </ItemActions>
+    </Item>
   );
 }
 

@@ -26,14 +26,17 @@ export function createMaterialColourVariables<P extends string>(
 ): addPrefixToObject<MaterialColours, P> {
   switch (theme.preset) {
     case "you": {
-      const colours = theme.darkMode
-        ? CAMPFIRE_DARK
-        : generateMaterialYouScheme(
-            theme.accent,
-            theme.darkMode,
-            theme.contrast,
-            theme.variant,
-          );
+      const colours =
+        theme.palette === "material-you"
+          ? generateMaterialYouScheme(
+              theme.accent,
+              theme.darkMode,
+              theme.contrast,
+              theme.variant,
+            )
+          : theme.darkMode
+            ? CAMPFIRE_DARK
+            : CAMPFIRE_LIGHT;
       return Object.entries(colours).reduce(
         (d, [key, value]) => ({
           ...d,
@@ -47,58 +50,122 @@ export function createMaterialColourVariables<P extends string>(
   }
 }
 
+/**
+ * Luma dark palette — cool zinc neutrals with warm amber primary.
+ * Mapped from shadcn Luma oklch values onto MD3 token slots.
+ */
 const CAMPFIRE_DARK: MaterialColours = {
-  primary: "#C98A2E",
-  "on-primary": "#1A0F00",
-  "primary-container": "#A55A2A",
-  "on-primary-container": "#F3E8D2",
+  primary: "#9C4F22",
+  "on-primary": "#FBF7E8",
+  "primary-container": "#C26420",
+  "on-primary-container": "#FBF7E8",
 
-  secondary: "#A55A2A",
-  "on-secondary": "#1A0F00",
-  "secondary-container": "#221B19",
-  "on-secondary-container": "#F3E8D2",
+  secondary: "#27272A",
+  "on-secondary": "#FAFAFA",
+  "secondary-container": "#27272A",
+  "on-secondary-container": "#FAFAFA",
 
-  tertiary: "#A55A2A",
-  "on-tertiary": "#1A0F00",
-  "tertiary-container": "#221B19",
-  "on-tertiary-container": "#F3E8D2",
+  tertiary: "#C26420",
+  "on-tertiary": "#FBF7E8",
+  "tertiary-container": "#27272A",
+  "on-tertiary-container": "#FAFAFA",
 
-  error: "#8F3A32",
-  "on-error": "#F3E8D2",
-  "error-container": "#5A2520",
-  "on-error-container": "#F3E8D2",
+  error: "#EE5F4F",
+  "on-error": "#FAFAFA",
+  "error-container": "#5C2418",
+  "on-error-container": "#FBE9E5",
 
-  "primary-fixed": "#E4A84B",
-  "primary-fixed-dim": "#E4A84B",
-  "on-primary-fixed": "#1A0F00",
-  "on-primary-fixed-variant": "#1A0F00",
-  "secondary-fixed": "#A55A2A",
-  "secondary-fixed-dim": "#C98A2E",
-  "on-secondary-fixed": "#1A0F00",
-  "on-secondary-fixed-variant": "#F3E8D2",
-  "tertiary-fixed": "#A55A2A",
-  "tertiary-fixed-dim": "#C98A2E",
-  "on-tertiary-fixed": "#1A0F00",
-  "on-tertiary-fixed-variant": "#F3E8D2",
+  "primary-fixed": "#C26420",
+  "primary-fixed-dim": "#9C4F22",
+  "on-primary-fixed": "#FBF7E8",
+  "on-primary-fixed-variant": "#FBF7E8",
+  "secondary-fixed": "#27272A",
+  "secondary-fixed-dim": "#3F3F46",
+  "on-secondary-fixed": "#FAFAFA",
+  "on-secondary-fixed-variant": "#FAFAFA",
+  "tertiary-fixed": "#27272A",
+  "tertiary-fixed-dim": "#C26420",
+  "on-tertiary-fixed": "#FAFAFA",
+  "on-tertiary-fixed-variant": "#FAFAFA",
 
-  "surface-dim": "#0E0B0A",
-  surface: "#171312",
-  "surface-bright": "#2A211E",
+  "surface-dim": "#09090B",
+  surface: "#18181B",
+  "surface-bright": "#27272A",
 
-  "surface-container-lowest": "#0E0B0A",
-  "surface-container-low": "#171312",
-  "surface-container": "#171312",
-  "surface-container-high": "#221B19",
-  "surface-container-highest": "#2A211E",
+  "surface-container-lowest": "#09090B",
+  "surface-container-low": "#18181B",
+  "surface-container": "#18181B",
+  "surface-container-high": "#27272A",
+  "surface-container-highest": "#3F3F46",
 
-  "on-surface": "#F3E8D2",
-  "on-surface-variant": "#B8A996",
-  outline: "#7E7064",
-  "outline-variant": "#342A26",
+  "on-surface": "#FAFAFA",
+  "on-surface-variant": "#A1A1AA",
+  outline: "#3F3F46",
+  "outline-variant": "#27272A",
 
-  "inverse-surface": "#F3E8D2",
-  "inverse-on-surface": "#171312",
-  "inverse-primary": "#C98A2E",
+  "inverse-surface": "#FAFAFA",
+  "inverse-on-surface": "#18181B",
+  "inverse-primary": "#9C4F22",
+
+  scrim: "#000000",
+  shadow: "#000000",
+};
+
+/**
+ * Luma light palette — white surfaces, zinc dividers, amber primary.
+ */
+const CAMPFIRE_LIGHT: MaterialColours = {
+  primary: "#C26420",
+  "on-primary": "#FBF7E8",
+  "primary-container": "#E5BA72",
+  "on-primary-container": "#18181B",
+
+  secondary: "#F4F4F5",
+  "on-secondary": "#18181B",
+  "secondary-container": "#F4F4F5",
+  "on-secondary-container": "#18181B",
+
+  tertiary: "#C26420",
+  "on-tertiary": "#FBF7E8",
+  "tertiary-container": "#F4F4F5",
+  "on-tertiary-container": "#18181B",
+
+  error: "#DC2626",
+  "on-error": "#FAFAFA",
+  "error-container": "#FCE8E8",
+  "on-error-container": "#5C0F0F",
+
+  "primary-fixed": "#E5BA72",
+  "primary-fixed-dim": "#C26420",
+  "on-primary-fixed": "#18181B",
+  "on-primary-fixed-variant": "#18181B",
+  "secondary-fixed": "#F4F4F5",
+  "secondary-fixed-dim": "#E4E4E7",
+  "on-secondary-fixed": "#18181B",
+  "on-secondary-fixed-variant": "#18181B",
+  "tertiary-fixed": "#F4F4F5",
+  "tertiary-fixed-dim": "#C26420",
+  "on-tertiary-fixed": "#18181B",
+  "on-tertiary-fixed-variant": "#18181B",
+
+  "surface-dim": "#FAFAFA",
+  surface: "#FFFFFF",
+  "surface-bright": "#FFFFFF",
+
+  "surface-container-lowest": "#FFFFFF",
+  "surface-container-low": "#FAFAFA",
+  "surface-container": "#F4F4F5",
+  "surface-container-high": "#E4E4E7",
+  "surface-container-highest": "#D4D4D8",
+
+  "on-surface": "#18181B",
+  "on-surface-variant": "#71717A",
+  outline: "#E4E4E7",
+  "outline-variant": "#F4F4F5",
+
+  "inverse-surface": "#18181B",
+  "inverse-on-surface": "#FAFAFA",
+  "inverse-primary": "#C26420",
 
   scrim: "#000000",
   shadow: "#000000",

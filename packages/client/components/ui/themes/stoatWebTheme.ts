@@ -62,17 +62,16 @@ function reduceWithPrefix(object: Record<string, string>, prefix: string) {
 
 const themeConstants = {
   borderRadius: {
-    // Campfire: slightly squarer than the default MD3 Expressive scale,
-    // for a sturdier "iron/hearth" feel.
+    // Luma scale: 10px base × {0.4, 0.6, 0.8, 1.0, 1.4, 1.8, 2.2, 2.6}
     none: "0px",
-    xs: "3px",
+    xs: "4px",
     sm: "6px",
-    md: "10px",
-    lg: "14px",
-    li: "18px",
-    xl: "24px",
-    xli: "28px",
-    xxl: "40px",
+    md: "8px",
+    lg: "10px",
+    li: "14px",
+    xl: "18px",
+    xli: "22px",
+    xxl: "26px",
     full: "calc(infinity * 1px)",
     circle: "100%",
   },
