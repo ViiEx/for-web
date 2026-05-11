@@ -34,9 +34,9 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 4000000,
       },
       manifest: {
-        name: "Stoat",
-        short_name: "Stoat",
-        description: "User-first open source chat platform.",
+        name: "Campfire",
+        short_name: "Campfire",
+        description: "Campfire is where companions gather when the banners are lowered and the road grows quiet. Around the fire, every voice finds its place—tales are traded, plans are forged, and fellowship grows stronger with every meeting. Whether preparing for the next venture or sharing the victories of the last, Campfire keeps your circle close and your council united.",
         categories: ["communication", "chat", "messaging"],
         start_url: base,
         orientation: "portrait",
