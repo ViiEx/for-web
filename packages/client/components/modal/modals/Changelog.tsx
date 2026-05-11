@@ -31,51 +31,7 @@ export interface ChangelogPost {
   content: Element[];
 }
 
-const ChangelogPosts: ChangelogPost[] = [
-  // {
-  //   icon: "key",
-  //   date: new Date("2022-06-12T20:39:16.674Z"),
-  //   title: "Secure your account with 2FA",
-  //   content: [
-  //     "Two-factor authentication is now available to all users, you can now head over to settings to enable recovery codes and an authenticator app.",
-  //     {
-  //       type: "image",
-  //       src: "https://autumn.revolt.chat/attachments/E21kwmuJGcASgkVLiSIW0wV3ggcaOWjW0TQF7cdFNY/image.png",
-  //     },
-  //     "Once enabled, you will be prompted on login.",
-  //     {
-  //       type: "image",
-  //       src: "https://autumn.revolt.chat/attachments/LWRYoKR2tE1ggW_Lzm547P1pnrkNgmBaoCAfWvHE74/image.png",
-  //     },
-  //     "Other authentication methods coming later, stay tuned!",
-  //   ],
-  // },
-  {
-    icon: "voice_chat",
-    date: new Date("2025-11-08T14:00:00.000Z"),
-    link: "https://stoat.chat/updates/web-0013",
-    title: "Stoat for Web: 0.0.13",
-    content: [
-      `This update brings a host of improvements to voice chats along with an improved messaging experience.
-
-## Improved Voice Chats
-A brand new user interface with picture-in-picture support to keep an eye on your voice chats while you multitask.`,
-      {
-        type: "image",
-        src: "https://stoat.chat/content/changelog/web-0.0.13/pip.gif",
-      },
-      `You can now also see who is in a voice chat and who is speaking, making it easier to keep track of conversations.
-
-## Improved Text Editor
-The text editor has been revamped to provide a smoother and more intuitive messaging experience. We've taken and improved the experience from our old web app, featuring rich text preview while not intruding on what you're typing.`,
-      {
-        type: "image",
-        src: "https://stoat.chat/content/changelog/web-0.0.13/text_editor.png",
-      },
-      `For an in-depth look at all the new features and improvements, check out our blog post by pressing read more!`,
-    ],
-  },
-];
+const ChangelogPosts: ChangelogPost[] = [];
 
 export const CHANGELOG_MODAL_CONST = {
   index: 0,

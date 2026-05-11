@@ -25,25 +25,84 @@ export function createMaterialColourVariables<P extends string>(
   prefix: P,
 ): addPrefixToObject<MaterialColours, P> {
   switch (theme.preset) {
-    case "you":
-      return Object.entries(
-        generateMaterialYouScheme(
-          theme.accent,
-          theme.darkMode,
-          theme.contrast,
-          theme.variant,
-        ),
-      ).reduce(
+    case "you": {
+      const colours = theme.darkMode
+        ? CAMPFIRE_DARK
+        : generateMaterialYouScheme(
+            theme.accent,
+            theme.darkMode,
+            theme.contrast,
+            theme.variant,
+          );
+      return Object.entries(colours).reduce(
         (d, [key, value]) => ({
           ...d,
           [`${prefix}${key}`]: value,
         }),
         {} as addPrefixToObject<MaterialColours, P>,
       );
+    }
     default:
       return {} as never;
   }
 }
+
+const CAMPFIRE_DARK: MaterialColours = {
+  primary: "#C98A2E",
+  "on-primary": "#1A0F00",
+  "primary-container": "#A55A2A",
+  "on-primary-container": "#F3E8D2",
+
+  secondary: "#A55A2A",
+  "on-secondary": "#1A0F00",
+  "secondary-container": "#221B19",
+  "on-secondary-container": "#F3E8D2",
+
+  tertiary: "#A55A2A",
+  "on-tertiary": "#1A0F00",
+  "tertiary-container": "#221B19",
+  "on-tertiary-container": "#F3E8D2",
+
+  error: "#8F3A32",
+  "on-error": "#F3E8D2",
+  "error-container": "#5A2520",
+  "on-error-container": "#F3E8D2",
+
+  "primary-fixed": "#E4A84B",
+  "primary-fixed-dim": "#E4A84B",
+  "on-primary-fixed": "#1A0F00",
+  "on-primary-fixed-variant": "#1A0F00",
+  "secondary-fixed": "#A55A2A",
+  "secondary-fixed-dim": "#C98A2E",
+  "on-secondary-fixed": "#1A0F00",
+  "on-secondary-fixed-variant": "#F3E8D2",
+  "tertiary-fixed": "#A55A2A",
+  "tertiary-fixed-dim": "#C98A2E",
+  "on-tertiary-fixed": "#1A0F00",
+  "on-tertiary-fixed-variant": "#F3E8D2",
+
+  "surface-dim": "#0E0B0A",
+  surface: "#171312",
+  "surface-bright": "#2A211E",
+
+  "surface-container-lowest": "#0E0B0A",
+  "surface-container-low": "#171312",
+  "surface-container": "#171312",
+  "surface-container-high": "#221B19",
+  "surface-container-highest": "#2A211E",
+
+  "on-surface": "#F3E8D2",
+  "on-surface-variant": "#B8A996",
+  outline: "#7E7064",
+  "outline-variant": "#342A26",
+
+  "inverse-surface": "#F3E8D2",
+  "inverse-on-surface": "#171312",
+  "inverse-primary": "#C98A2E",
+
+  scrim: "#000000",
+  shadow: "#000000",
+};
 
 /**
  * Create R,G,B triplets for MDUI variables

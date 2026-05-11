@@ -1,4 +1,4 @@
-import { For, Match, Show, Switch, createSignal } from "solid-js";
+import { For, Match, Switch } from "solid-js";
 
 import { Trans } from "@lingui-solid/solid/macro";
 import { css } from "styled-system/css";
@@ -16,7 +16,6 @@ import {
   Button,
   Checkbox,
   Column,
-  IconButton,
   MenuItem,
   MessageContainer,
   Row,
@@ -31,15 +30,12 @@ import {
   MonospaceFonts,
 } from "@revolt/ui/themes/fonts";
 
-import MDPalette from "@material-design-icons/svg/outlined/palette.svg?component-solid";
-
 /**
  * All appearance options for the client
  */
 export function AppearanceMenu() {
   const user = useUser();
   const state = useState();
-  const [pickerRef, setPickerRef] = createSignal<HTMLDivElement>();
 
   return (
     <Column gap="lg">
@@ -97,187 +93,6 @@ export function AppearanceMenu() {
           </Button>
         </Row> */}
 
-        <Show when={state.theme.preset === "you"}>
-          <Row align justify>
-            <IconButton
-              ref={setPickerRef}
-              variant="filled"
-              shape="square"
-              size="md"
-              onPress={() => pickerRef()?.click()}
-            >
-              <MDPalette />
-            </IconButton>
-            <input
-              ref={setPickerRef}
-              type="color"
-              value={state.theme.m3Accent ?? "#ffffff"}
-              onInput={(e) => {
-                const colour = (e.currentTarget as HTMLInputElement).value;
-                state.theme.setM3Accent(colour);
-              }}
-              style={{
-                position: "absolute",
-                opacity: 0,
-                width: "0px",
-                height: "0px",
-                padding: 0,
-                border: "none",
-              }}
-            />
-            <For
-              each={[
-                "#FF5733",
-                "#ffdc2f",
-                "#9bf088",
-                "#54ecc1",
-                "#549bec",
-                "#5470ec",
-                "#8C5FD3",
-              ]}
-            >
-              {(colour) => (
-                <Button
-                  size="md"
-                  bg={colour}
-                  group="standard"
-                  groupActive={state.theme.m3Accent === colour}
-                  onPress={() => state.theme.setM3Accent(colour)}
-                />
-                // <div
-                //   class={css({
-                //     borderRadius: "var(--borderRadius-full)",
-                //     width: "48px",
-                //     height: "48px",
-                //     cursor: "pointer",
-                //   })}
-                //   style={{ "background-color": colour }}
-                //   onClick={() => state.theme.setM3Accent(colour)}
-                // />
-              )}
-            </For>
-            {/* <div
-            class={css({
-              borderRadius: "var(--borderRadius-full)",
-              width: "48px",
-              height: "48px",
-              cursor: "pointer",
-            })}
-          >
-            <MdColorize />
-          </div> */}
-          </Row>
-
-          <Row justify="stretch">
-            <Button
-              size="xs"
-              group="connected-start"
-              groupActive={state.theme.m3Contrast.toFixed(1) === "-1.0"}
-              onPress={() => state.theme.setM3Contrast(-1.0)}
-            >
-              <Trans>Reduced</Trans>
-            </Button>
-            <Button
-              size="xs"
-              group="connected"
-              groupActive={state.theme.m3Contrast.toFixed(1) === "0.0"}
-              onPress={() => state.theme.setM3Contrast(0)}
-            >
-              <Trans>Normal</Trans>
-            </Button>
-            <Button
-              size="xs"
-              group="connected"
-              groupActive={state.theme.m3Contrast.toFixed(1) === "0.5"}
-              onPress={() => state.theme.setM3Contrast(0.5)}
-            >
-              <Trans>More Contrast</Trans>
-            </Button>
-            <Button
-              size="xs"
-              group="connected-end"
-              groupActive={state.theme.m3Contrast.toFixed(1) === "1.0"}
-              onPress={() => state.theme.setM3Contrast(1.0)}
-            >
-              <Trans>High Contrast</Trans>
-            </Button>
-          </Row>
-
-          <Row justify="stretch">
-            <Button
-              size="xs"
-              group="connected-start"
-              groupActive={state.theme.m3Variant === "monochrome"}
-              onPress={() => state.theme.setM3Variant("monochrome")}
-            >
-              <Trans>Monochrome</Trans>
-            </Button>
-            <Button
-              size="xs"
-              group="connected"
-              groupActive={state.theme.m3Variant === "neutral"}
-              onPress={() => state.theme.setM3Variant("neutral")}
-            >
-              <Trans>Neutral</Trans>
-            </Button>
-            <Button
-              size="xs"
-              group="connected"
-              groupActive={state.theme.m3Variant === "tonal_spot"}
-              onPress={() => state.theme.setM3Variant("tonal_spot")}
-            >
-              <Trans>Tonal Spot</Trans>
-            </Button>
-            {/* <Button
-            size="xs"
-            group="connected"
-            groupActive={state.theme.m3Variant === "vibrant"}
-            onPress={() => state.theme.setM3Variant("vibrant")}
-          >
-            <Trans>Vibrant</Trans>
-          </Button>
-          <Button
-            size="xs"
-            group="connected"
-            groupActive={state.theme.m3Variant === "expressive"}
-            onPress={() => state.theme.setM3Variant("expressive")}
-          >
-            <Trans>Expressive</Trans>
-          </Button>
-          <Button
-            size="xs"
-            group="connected"
-            groupActive={state.theme.m3Variant === "fidelity"}
-            onPress={() => state.theme.setM3Variant("fidelity")}
-          >
-            <Trans>Fidelity</Trans>
-          </Button>
-          <Button
-            size="xs"
-            group="connected"
-            groupActive={state.theme.m3Variant === "content"}
-            onPress={() => state.theme.setM3Variant("content")}
-          >
-            <Trans>Content</Trans>
-          </Button>
-          <Button
-            size="xs"
-            group="connected"
-            groupActive={state.theme.m3Variant === "rainbow"}
-            onPress={() => state.theme.setM3Variant("rainbow")}
-          >
-            <Trans>Rainbow</Trans>
-          </Button> */}
-            <Button
-              size="xs"
-              group="connected-end"
-              groupActive={state.theme.m3Variant === "fruit_salad"}
-              onPress={() => state.theme.setM3Variant("fruit_salad")}
-            >
-              <Trans>Fruit Salad</Trans>
-            </Button>
-          </Row>
-        </Show>
       </Column>
 
       <Column>

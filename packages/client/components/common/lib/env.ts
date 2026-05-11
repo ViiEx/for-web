@@ -1,7 +1,7 @@
 const DEFAULT_API_URL =
   (import.meta.env.DEV ? import.meta.env.VITE_DEV_API_URL : undefined) ??
   (import.meta.env.VITE_API_URL as string) ??
-  "https://stoat.chat/api";
+  "https://campfire.gr/api";
 
 export default {
   /**
@@ -13,23 +13,16 @@ export default {
    */
   DEFAULT_API_URL,
   /**
-   * Whether this is Stoat
+   * Whether this is the upstream Stoat/Revolt deployment. Always false for Campfire.
    */
-  IS_STOAT: [
-    // historically...
-    "https://api.revolt.chat",
-    "https://beta.revolt.chat/api",
-    "https://revolt.chat/api",
-    // ... and now:
-    "https://stoat.chat/api",
-  ].includes(DEFAULT_API_URL),
+  IS_STOAT: false,
   /**
    * What WS server to connect to by default.
    */
   DEFAULT_WS_URL:
     (import.meta.env.DEV ? import.meta.env.VITE_DEV_WS_URL : undefined) ??
     (import.meta.env.VITE_WS_URL as string) ??
-    "wss://stoat.chat/events",
+    "wss://campfire.gr/events",
   /**
    * What media server to connect to by default.
    */

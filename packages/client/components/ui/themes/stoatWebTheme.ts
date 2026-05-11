@@ -30,7 +30,7 @@ export function createStoatWebVariables(theme: SelectedTheme) {
     "--transitions-medium": ".2s ease",
 
     // brand
-    "--brand-presence-online": "#3ABF7E",
+    "--brand-presence-online": "#5E7A4E",
     "--brand-presence-idle": "#F39F00",
     "--brand-presence-busy": "#F84848",
     "--brand-presence-focus": "#4799F0",
@@ -62,17 +62,17 @@ function reduceWithPrefix(object: Record<string, string>, prefix: string) {
 
 const themeConstants = {
   borderRadius: {
-    // Material 3 Expressive ten-level shape scale
-    // https://m3.material.io/styles/shape/corner-radius-scale
+    // Campfire: slightly squarer than the default MD3 Expressive scale,
+    // for a sturdier "iron/hearth" feel.
     none: "0px",
-    xs: "4px",
-    sm: "8px",
-    md: "12px",
-    lg: "16px",
-    li: "20px",
-    xl: "28px",
-    xli: "32px",
-    xxl: "48px",
+    xs: "3px",
+    sm: "6px",
+    md: "10px",
+    lg: "14px",
+    li: "18px",
+    xl: "24px",
+    xli: "28px",
+    xxl: "40px",
     full: "calc(infinity * 1px)",
     circle: "100%",
   },
