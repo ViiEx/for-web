@@ -16,6 +16,7 @@ export function ProfileBanner(props: {
   onClick?: (e: MouseEvent) => void;
   onClickAvatar?: (e: MouseEvent) => void;
   width: 2 | 3;
+  full?: boolean;
 }) {
   const { t } = useLingui();
 
@@ -42,6 +43,9 @@ export function ProfileBanner(props: {
       style={{
         "background-image": `linear-gradient(rgba(0, 0, 0, 0.2),rgba(0, 0, 0, 0.7)), url('${props.bannerUrl}')`,
       }}
+      class={css({
+        borderRadius: props.full ? "0" : "var(--borderRadius-xl)",
+      })}
       isLink={typeof props.onClick !== "undefined"}
       onClick={props.onClick}
       width={props.width}

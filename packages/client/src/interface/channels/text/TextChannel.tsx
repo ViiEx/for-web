@@ -166,7 +166,11 @@ export function TextChannel(props: ChannelPageProps) {
         />
       </Header>
       <Content>
-        <main class={main()}>
+        <main
+          class={main({
+            leftRoundedOnly: props.channel.type === "DirectMessage",
+          })}
+        >
           <Show
             when={canConnect()}
             fallback={
@@ -230,6 +234,10 @@ export function TextChannel(props: ChannelPageProps) {
             }}
             style={{
               width: sidebarState().state !== "default" ? "360px" : "",
+              "border-radius":
+                props.channel.type === "DirectMessage"
+                  ? "0"
+                  : "var(--borderRadius-lg)",
             }}
           >
             <Switch
@@ -304,7 +312,7 @@ const sidebar = cva({
     flexShrink: 0,
     width: "var(--layout-width-channel-sidebar)",
     // margin: "var(--gap-md)",
-    borderRadius: "var(--borderRadius-lg)",
+    // borderRadius: "var(--borderRadius-lg)",
     // color: "var(--colours-sidebar-channels-foreground)",
     // background: "var(--colours-sidebar-channels-background)",
   },

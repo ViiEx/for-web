@@ -16,9 +16,17 @@ export const main = cva({
     flexDirection: "column",
 
     paddingInline: "var(--gap-md)",
-    marginInline: "var(--gap-md)",
-    marginBlockEnd: "var(--gap-md)",
+    // marginInline: "var(--gap-md)",
+    // marginBlockEnd: "var(--gap-md)",
     borderRadius: "var(--borderRadius-xl)",
     background: "var(--md-sys-color-surface-container-lowest)",
+  },
+  variants: {
+    leftRoundedOnly: {
+      true: {
+        borderStartEndRadius: 0,
+        borderEndEndRadius: 0,
+      },
+    },
   },
 });

@@ -30,6 +30,55 @@ type GifResult = {
   media_formats: Record<"webm" | "tinywebm", { url: string }>;
 };
 
+type GiphyImage = { url: string; mp4?: string; webp?: string };
+type GiphyGif = {
+  url: string;
+  images: {
+    original: GiphyImage;
+    original_mp4?: GiphyImage;
+    fixed_width: GiphyImage;
+    fixed_width_small?: GiphyImage;
+    fixed_height_small?: GiphyImage;
+    preview?: GiphyImage;
+  };
+};
+
+const useGiphy = () => !!env.GIPHY_API_KEY;
+
+/**
+ * Normalize a Giphy gif into our internal GifResult shape.
+ * Per Giphy best practices: MP4 for previews, full-quality rendition for the sent message.
+ * URLs are preserved verbatim — no query-param stripping.
+ */
+function fromGiphy(g: GiphyGif): GifResult {
+  const previewMp4 =
+    g.images.fixed_height_small?.mp4 ??
+    g.images.fixed_width_small?.mp4 ??
+    g.images.fixed_width.mp4 ??
+    g.images.preview?.mp4;
+  const previewFallback =
+    g.images.fixed_height_small?.url ??
+    g.images.fixed_width_small?.url ??
+    g.images.fixed_width.url;
+  const sendUrl = g.images.original.url;
+  return {
+    url: sendUrl,
+    media_formats: {
+      webm: { url: sendUrl },
+      tinywebm: { url: previewMp4 ?? previewFallback },
+    },
+  };
+}
+
+async function giphyFetch(path: string, params: Record<string, string>) {
+  const qs = new URLSearchParams({
+    api_key: env.GIPHY_API_KEY,
+    ...params,
+  });
+  const resp = await fetch(`https://api.giphy.com/v1/gifs/${path}?${qs}`);
+  return resp.json();
+}
+
 const FilterContext = createContext<(value: string) => void>();
 
 export function GifPicker() {
@@ -45,11 +94,10 @@ export function GifPicker() {
         placeholder="Search for GIFs..."
         value={filter()}
         onMouseDown={(e) => {
-          e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
         }}
-        onChange={(e) => setFilter(e.currentTarget.value)}
+        onInput={(e) => setFilter(e.currentTarget.value)}
       />
       <Suspense fallback={<CircularProgress />}>
         <Switch
@@ -98,10 +146,20 @@ function Categories() {
   const client = useClient();
 
   const trendingCategories = useQuery<GifCategory[]>(() => ({
-    queryKey: ["trendingGifCategories"],
-    queryFn: () => {
-      const [authHeader, authHeaderValue] = client()!.authenticationHeader;
+    queryKey: ["trendingGifCategories", useGiphy()],
+    queryFn: async () => {
+      if (useGiphy()) {
+        const resp = await giphyFetch("categories", {});
+        return (resp.data ?? []).map(
+          (c: { name: string; gif: GiphyGif }): GifCategory => ({
+            title: c.name,
+            image:
+              c.gif.images.fixed_width.webp ?? c.gif.images.fixed_width.url,
+          }),
+        );
+      }
 
+      const [authHeader, authHeaderValue] = client()!.authenticationHeader;
       return fetch(`${env.DEFAULT_GIFBOX_URL}/categories?locale=en_US`, {
         headers: {
           [authHeader]: authHeaderValue,
@@ -110,13 +168,20 @@ function Categories() {
     },
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
+    staleTime: useGiphy() ? 0 : Infinity,
+    gcTime: useGiphy() ? 60_000 : undefined,
   }));
 
   const trendingGif = useQuery<GifResult | null>(() => ({
-    queryKey: ["trendingGif1"],
-    queryFn: () => {
-      const [authHeader, authHeaderValue] = client()!.authenticationHeader;
+    queryKey: ["trendingGif1", useGiphy()],
+    queryFn: async () => {
+      if (useGiphy()) {
+        const resp = await giphyFetch("trending", { limit: "1" });
+        const first: GiphyGif | undefined = resp.data?.[0];
+        return first ? fromGiphy(first) : null;
+      }
 
+      const [authHeader, authHeaderValue] = client()!.authenticationHeader;
       return fetch(`${env.DEFAULT_GIFBOX_URL}/trending?locale=en_US&limit=1`, {
         headers: {
           [authHeader]: authHeaderValue,
@@ -128,6 +193,8 @@ function Categories() {
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     initialData: null,
+    staleTime: useGiphy() ? 0 : Infinity,
+    gcTime: useGiphy() ? 60_000 : undefined,
   }));
 
   const items = createMemo(() => {
@@ -216,10 +283,19 @@ function GifSearch(props: { query: string }) {
   const client = useClient();
 
   const search = useQuery<GifResult[]>(() => ({
-    queryKey: ["gifs", props.query],
-    queryFn: () => {
-      const [authHeader, authHeaderValue] = client()!.authenticationHeader;
+    queryKey: ["gifs", props.query, useGiphy()],
+    queryFn: async () => {
+      if (useGiphy()) {
+        const resp = await giphyFetch(
+          props.query === "trending" ? "trending" : "search",
+          props.query === "trending"
+            ? { limit: "50" }
+            : { q: props.query, limit: "50" },
+        );
+        return (resp.data ?? []).map(fromGiphy);
+      }
 
+      const [authHeader, authHeaderValue] = client()!.authenticationHeader;
       return fetch(
         `${env.DEFAULT_GIFBOX_URL}/` +
           (props.query === "trending"
@@ -236,6 +312,8 @@ function GifSearch(props: { query: string }) {
     },
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
+    staleTime: useGiphy() ? 0 : Infinity,
+    gcTime: useGiphy() ? 60_000 : undefined,
   }));
 
   return (
@@ -261,22 +339,47 @@ const GifItem = (props: {
 }) => {
   const { onMessage } = useContext(CompositionMediaPickerContext);
 
+  const src = () => props.item.media_formats.tinywebm.url;
+  const isVideo = () => /\.(webm|mp4)(\?|$)/i.test(src());
+
   return (
-    <Gif
-      loop
-      autoplay
-      muted
-      preload="auto"
-      role="listitem"
-      style={props.style as string}
-      tabIndex={props.tabIndex}
-      src={props.item.media_formats.tinywebm.url}
-      onClick={() => onMessage(props.item.url)}
-    />
+    <Switch>
+      <Match when={isVideo()}>
+        <GifVideo
+          loop
+          autoplay
+          muted
+          preload="auto"
+          role="listitem"
+          style={props.style as string}
+          tabIndex={props.tabIndex}
+          src={src()}
+          onClick={() => onMessage(`![gif](${props.item.url})`)}
+        />
+      </Match>
+      <Match when={!isVideo()}>
+        <GifImage
+          role="listitem"
+          style={props.style as string}
+          tabIndex={props.tabIndex}
+          src={src()}
+          onClick={() => onMessage(`![gif](${props.item.url})`)}
+        />
+      </Match>
+    </Switch>
   );
 };
 
-const Gif = styled("video", {
+const GifVideo = styled("video", {
+  base: {
+    width: "200px",
+    height: "120px",
+    cursor: "pointer",
+    objectFit: "cover",
+  },
+});
+
+const GifImage = styled("img", {
   base: {
     width: "200px",
     height: "120px",

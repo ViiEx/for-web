@@ -45,6 +45,10 @@ export default {
     (import.meta.env.VITE_GIFBOX_URL as string) ??
     "https://api.gifbox.me",
   /**
+   * Giphy API key for GIF search. If unset, falls back to gifbox.
+   */
+  GIPHY_API_KEY: (import.meta.env.VITE_GIPHY_API_KEY as string) ?? "",
+  /**
    * hCaptcha site key to use if enabled
    */
   HCAPTCHA_SITEKEY: import.meta.env.VITE_HCAPTCHA_SITEKEY as string,

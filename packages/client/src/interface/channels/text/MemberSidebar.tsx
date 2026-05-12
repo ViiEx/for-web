@@ -1,4 +1,12 @@
-import { Match, Show, Switch, createEffect, createMemo, on } from "solid-js";
+import {
+  For,
+  Match,
+  Show,
+  Switch,
+  createEffect,
+  createMemo,
+  on,
+} from "solid-js";
 
 import { useLingui } from "@lingui-solid/solid/macro";
 import { VirtualContainer } from "@minht11/solid-virtual-container";
@@ -7,6 +15,10 @@ import { styled } from "styled-system/jsx";
 
 import { floatingUserMenus } from "@revolt/app/menus/UserContextMenu";
 import { useClient } from "@revolt/client";
+import { timeLocale, useTime } from "@revolt/i18n";
+import { useModals } from "@revolt/modal";
+import { useQuery } from "@tanstack/solid-query";
+
 import { TextWithEmoji } from "@revolt/markdown";
 import { userInformation } from "@revolt/markdown/users";
 import {
@@ -14,12 +26,14 @@ import {
   Deferred,
   MenuButton,
   OverflowingText,
+  Profile,
   Row,
   Tooltip,
   UserStatus,
   Username,
   typography,
 } from "@revolt/ui";
+import { css } from "styled-system/css/css";
 
 interface Props {
   /**
@@ -33,10 +47,257 @@ interface Props {
   scrollTargetElement: HTMLDivElement;
 }
 
+const userInfo = css({
+  display: "flex",
+  flexDirection: "column",
+  minWidth: 0,
+  flex: 1,
+  paddingRight: "var(--gap-md)",
+  paddingLeft: "var(--gap-md)",
+  marginBottom: "12px",
+});
+
+const userName = css({
+  fontSize: "20px",
+  fontWeight: 700,
+  lineHeight: 1.2,
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  color: "var(--md-sys-color-on-surface)",
+});
+
+const userHandle = css({
+  fontSize: "14px",
+  lineHeight: "18px",
+  color: "var(--md-sys-color-on-surface-variant)",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+});
+
+const sectionStack = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: "var(--gap-md)",
+  paddingLeft: "var(--gap-md)",
+  paddingRight: "var(--gap-md)",
+  marginTop: "var(--gap-md)",
+});
+
+const glassCard = css({
+  position: "relative",
+  display: "flex",
+  flexDirection: "column",
+  gap: "12px",
+  padding: "12px",
+  borderRadius: "8px",
+  background:
+    "linear-gradient(135deg, color-mix(in srgb, var(--md-sys-color-surface) 55%, transparent), color-mix(in srgb, var(--md-sys-color-surface) 25%, transparent))",
+  backdropFilter: "blur(20px) saturate(180%)",
+  // border:
+  //   "1px solid color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent)",
+  boxShadow:
+    "0 1px 0 color-mix(in srgb, white 8%, transparent) inset, 0 8px 24px color-mix(in srgb, black 18%, transparent)",
+  color: "var(--md-sys-color-on-surface)",
+  overflow: "hidden",
+  marginBottom: "12px",
+});
+
+const cardTitle = css({
+  fontSize: "12px",
+  fontWeight: 600,
+  lineHeight: 1.3333333333333333,
+  color: "var(--md-sys-color-on-surface-variant)",
+});
+
+const cardContent = css({
+  fontSize: "14px",
+  fontWeight: 400,
+  lineHeight: 1.2857142857142858,
+  color: "var(--md-sys-color-on-surface)",
+});
+
+const activityBody = css({
+  display: "flex",
+  alignItems: "center",
+  gap: "12px",
+  minWidth: 0,
+});
+
+const activityAvatarStack = css({
+  position: "relative",
+  width: "48px",
+  height: "48px",
+  flexShrink: 0,
+});
+
+const activityAvatarBack = css({
+  position: "absolute",
+  top: 0,
+  left: 0,
+  width: "28px",
+  height: "28px",
+  borderRadius: "50%",
+  overflow: "hidden",
+  border: "2px solid var(--md-sys-color-surface)",
+});
+
+const activityAvatarFront = css({
+  position: "absolute",
+  bottom: 0,
+  right: 0,
+  width: "32px",
+  height: "32px",
+  borderRadius: "50%",
+  overflow: "hidden",
+  border: "2px solid var(--md-sys-color-surface)",
+});
+
+const activityDetails = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: "2px",
+  minWidth: 0,
+  flex: 1,
+});
+
+const activityChannelName = css({
+  display: "flex",
+  alignItems: "center",
+  gap: "4px",
+  fontSize: "14px",
+  fontWeight: 600,
+  lineHeight: 1.2857142857142858,
+  color: "var(--md-sys-color-on-surface)",
+});
+
+const activityChannelSubtitle = css({
+  fontSize: "12px",
+  fontWeight: 400,
+  lineHeight: 1.3333333333333333,
+  color: "var(--md-sys-color-on-surface-variant)",
+});
+
+const cardDivider = css({
+  height: "1px",
+  background:
+    "color-mix(in srgb, var(--md-sys-color-on-surface) 10%, transparent)",
+  margin: "12px -16px",
+});
+
+const collapsible = css({
+  "& > summary": {
+    cursor: "pointer",
+    fontSize: "12px",
+    fontWeight: 600,
+    lineHeight: 1.3333333333333333,
+    listStyle: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    color: "var(--md-sys-color-on-surface-variant)",
+  },
+  "& > summary::-webkit-details-marker": {
+    display: "none",
+  },
+  "& > summary::after": {
+    content: '"▸"',
+    fontSize: "0.7rem",
+    color: "var(--md-sys-color-on-surface-variant)",
+    transition: "transform 200ms ease",
+  },
+  "&[open] > summary::after": {
+    transform: "rotate(90deg)",
+  },
+});
+
+const collapsibleList = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: "var(--gap-sm)",
+  marginTop: "12px",
+  paddingTop: "12px",
+  borderTop:
+    "1px solid color-mix(in srgb, var(--md-sys-color-on-surface) 10%, transparent)",
+});
+
+const collapsibleRow = css({
+  display: "flex",
+  alignItems: "center",
+  gap: "var(--gap-sm)",
+  fontSize: "14px",
+  fontWeight: 400,
+  lineHeight: 1.2857142857142858,
+  color: "var(--md-sys-color-on-surface)",
+  minWidth: 0,
+  padding: "4px 0",
+});
+
+const collapsibleEmpty = css({
+  fontSize: "0.75rem",
+  color: "var(--md-sys-color-on-surface-variant)",
+  marginTop: "12px",
+  paddingTop: "12px",
+  borderTop:
+    "1px solid color-mix(in srgb, var(--md-sys-color-on-surface) 10%, transparent)",
+});
+
 /**
  * Member Sidebar
  */
 export function MemberSidebar(props: Props) {
+  const client = useClient();
+  const user = () => props.channel.recipient;
+  const { openModal } = useModals();
+  const dayjs = useTime();
+
+  const query = useQuery(() => ({
+    queryKey: ["profile", user()?.id],
+    queryFn: () => user()!.fetchProfile(),
+    enabled: !!user(),
+  }));
+
+  const mutualsQuery = useQuery(() => ({
+    queryKey: ["mutual", user()?.id],
+    queryFn: async () => {
+      const u = user()!;
+      if (u.self || u.bot) return { users: [], servers: [] };
+
+      const clnt = client();
+      const { users, servers } = await u.fetchMutual();
+
+      return {
+        users: users.map((userId) => clnt.users.get(userId)!).filter((u) => u),
+        servers: servers
+          .map((serverId) => clnt.servers.get(serverId)!)
+          .filter((s) => s),
+      };
+    },
+    enabled: !!user() && props.channel.type === "DirectMessage",
+  }));
+
+  const joinedFormat = () =>
+    timeLocale()[1]
+      .formats.L?.replace("MM", "MMM")
+      .replaceAll("/", " ")
+      .replaceAll("-", " ");
+
+  const voiceActivity = createMemo(() => {
+    const u = user();
+    if (!u) return null;
+    for (const channel of client().channels.values()) {
+      if (channel.voiceParticipants.has(u.id)) {
+        const others = [...channel.voiceParticipants.values()]
+          .filter((p) => p.userId !== u.id)
+          .map((p) => client().users.get(p.userId))
+          .filter((x): x is User => !!x);
+        return { channel, others };
+      }
+    }
+    return null;
+  });
+
   return (
     <Switch>
       <Match when={props.channel.type === "Group"}>
@@ -50,6 +311,126 @@ export function MemberSidebar(props: Props) {
           channel={props.channel}
           scrollTargetElement={props.scrollTargetElement}
         />
+      </Match>
+      <Match when={props.channel.type === "DirectMessage"}>
+        <div class={css({ marginBottom: "8px" })}>
+          <Profile.Banner
+            width={2}
+            user={user()!}
+            bannerUrl={query.data?.animatedBannerURL}
+            onClickAvatar={(e) => {
+              e.stopPropagation();
+              if (user()!.avatar) {
+                openModal({ type: "image_viewer", file: user()!.avatar! });
+              }
+            }}
+            full
+          />
+        </div>
+        <div class={userInfo}>
+          <div class={userName}>{user()?.displayName}</div>
+          <div class={userHandle}>
+            {user()?.username}#{user()?.discriminator}
+          </div>
+        </div>
+        <div class={sectionStack}>
+          <Show when={voiceActivity()}>
+            {(activity) => (
+              <div class={glassCard}>
+                <div class={cardTitle}>In voice</div>
+                <div class={activityBody}>
+                  <div class={activityAvatarStack}>
+                    <Show when={activity().others[0]}>
+                      <div class={activityAvatarBack}>
+                        <Avatar
+                          src={activity().others[0]!.animatedAvatarURL}
+                          fallback={activity().others[0]!.displayName}
+                          size={28}
+                        />
+                      </div>
+                    </Show>
+                    <div class={activityAvatarFront}>
+                      <Avatar
+                        src={user()!.animatedAvatarURL}
+                        fallback={user()!.displayName}
+                        size={32}
+                      />
+                    </div>
+                  </div>
+                  <div class={activityDetails}>
+                    <div class={activityChannelName}>
+                      <OverflowingText>
+                        {activity().channel.name}
+                      </OverflowingText>
+                    </div>
+                    <Show when={activity().channel.server}>
+                      <div class={activityChannelSubtitle}>
+                        <OverflowingText>
+                          in {activity().channel.server!.name}
+                        </OverflowingText>
+                      </div>
+                    </Show>
+                  </div>
+                </div>
+              </div>
+            )}
+          </Show>
+          <Show when={user()}>
+            <div class={glassCard}>
+              <div class={cardTitle}>Member since</div>
+              <div class={cardContent}>
+                {dayjs(user()!.createdAt).format(joinedFormat())}
+              </div>
+            </div>
+          </Show>
+          <div class={glassCard}>
+            <details class={collapsible}>
+              <summary>Mutual servers</summary>
+              <Show
+                when={mutualsQuery.data?.servers.length}
+                fallback={<div class={collapsibleEmpty}>No mutual servers</div>}
+              >
+                <div class={collapsibleList}>
+                  <For each={mutualsQuery.data?.servers}>
+                    {(server) => (
+                      <div class={collapsibleRow}>
+                        <Avatar
+                          src={server.animatedIconURL}
+                          fallback={server.name}
+                          size={20}
+                        />
+                        <OverflowingText>{server.name}</OverflowingText>
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </Show>
+            </details>
+            <div class={cardDivider} />
+            <details class={collapsible}>
+              <summary>Mutual friends</summary>
+              <Show
+                when={mutualsQuery.data?.users.length}
+                fallback={<div class={collapsibleEmpty}>No mutual friends</div>}
+              >
+                <div class={collapsibleList}>
+                  <For each={mutualsQuery.data?.users}>
+                    {(u) => (
+                      <div class={collapsibleRow}>
+                        <Avatar
+                          src={u.animatedAvatarURL}
+                          fallback={u.displayName}
+                          size={20}
+                        />
+                        <OverflowingText>{u.displayName}</OverflowingText>
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </Show>
+            </details>
+          </div>
+        </div>
       </Match>
     </Switch>
   );
