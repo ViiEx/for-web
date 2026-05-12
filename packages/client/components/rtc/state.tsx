@@ -14,6 +14,7 @@ import {
 } from "solid-livekit-components";
 
 import {
+  LocalAudioTrack,
   Room,
   ScreenSharePresets,
   Track,
@@ -190,6 +191,8 @@ class Voice {
 
   disconnect() {
     try {
+      this.stopSound();
+
       const room = this.room();
       if (!room) return;
 
@@ -463,6 +466,118 @@ class Voice {
 
   get speakingPermission() {
     return !!this.channel()?.havePermission("Speak");
+  }
+
+  #currentSound?: {
+    ctx: AudioContext;
+    source: AudioBufferSourceNode;
+    track: LocalAudioTrack;
+  };
+
+  /**
+   * Decoded clip cache, keyed by sound URL. Avoids re-fetching on rapid replays.
+   */
+  #soundCache = new Map<string, Promise<AudioBuffer>>();
+
+  /**
+   * Stop the currently-playing soundboard clip, if any.
+   */
+  stopSound() {
+    const current = this.#currentSound;
+    if (!current) return;
+    this.#currentSound = undefined;
+    try {
+      current.source.onended = null;
+      current.source.stop();
+    } catch {
+      // already stopped
+    }
+    const room = this.room();
+    if (room) {
+      room.localParticipant.unpublishTrack(current.track).catch(() => {});
+    }
+    current.ctx.close().catch(() => {});
+  }
+
+  /**
+   * Play a soundboard clip into the current voice room.
+   *
+   * Decodes the audio client-side, publishes it as a separate LiveKit audio
+   * track (Source.Unknown, name "soundboard") so it doesn't interfere with
+   * the mic, and plays it back locally for the triggering user. Only one
+   * clip plays at a time per user — replays cut off the previous one.
+   *
+   * @param url Audio URL (typically a Sound served by Autumn)
+   * @param localVolume Volume for the local user's playback (0..1)
+   */
+  async playSound(url: string, localVolume: number = 1) {
+    const room = this.room();
+    if (!room || this.state() !== "CONNECTED") return;
+    if (!this.speakingPermission) return;
+
+    this.stopSound();
+
+    let bufferPromise = this.#soundCache.get(url);
+    if (!bufferPromise) {
+      const sharedCtx = new AudioContext();
+      bufferPromise = fetch(url)
+        .then((res) => res.arrayBuffer())
+        .then((buf) => sharedCtx.decodeAudioData(buf))
+        .finally(() => sharedCtx.close().catch(() => {}));
+      this.#soundCache.set(url, bufferPromise);
+      bufferPromise.catch(() => this.#soundCache.delete(url));
+    }
+
+    let buffer: AudioBuffer;
+    try {
+      buffer = await bufferPromise;
+    } catch (e) {
+      this.onErr(e);
+      return;
+    }
+
+    if (this.room() !== room || this.state() !== "CONNECTED") return;
+
+    const ctx = new AudioContext();
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+
+    const destination = ctx.createMediaStreamDestination();
+    source.connect(destination);
+
+    const localGain = ctx.createGain();
+    localGain.gain.value = Math.max(0, Math.min(1, localVolume));
+    source.connect(localGain).connect(ctx.destination);
+
+    const mediaTrack = destination.stream.getAudioTracks()[0];
+    if (!mediaTrack) return;
+
+    const track = new LocalAudioTrack(mediaTrack);
+    const entry = { ctx, source, track };
+    this.#currentSound = entry;
+
+    try {
+      await room.localParticipant.publishTrack(track, {
+        source: Track.Source.Unknown,
+        name: "soundboard",
+        dtx: false,
+        red: false,
+      });
+    } catch (e) {
+      this.#currentSound = undefined;
+      ctx.close().catch(() => {});
+      this.onErr(e);
+      return;
+    }
+
+    source.onended = () => {
+      if (this.#currentSound === entry) {
+        this.#currentSound = undefined;
+        room.localParticipant.unpublishTrack(track).catch(() => {});
+        ctx.close().catch(() => {});
+      }
+    };
+    source.start();
   }
 
   private onErr(e: unknown) {

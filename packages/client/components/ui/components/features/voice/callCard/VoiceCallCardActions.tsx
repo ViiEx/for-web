@@ -4,6 +4,7 @@ import { useLingui } from "@lingui-solid/solid/macro";
 import { styled } from "styled-system/jsx";
 
 import { CONFIGURATION } from "@revolt/common";
+import { useModals } from "@revolt/modal";
 import { useVoice } from "@revolt/rtc";
 import { Button, IconButton } from "@revolt/ui/components/design";
 import { Symbol } from "@revolt/ui/components/utils/Symbol";
@@ -11,9 +12,15 @@ import { Symbol } from "@revolt/ui/components/utils/Symbol";
 export function VoiceCallCardActions(props: { size: "xs" | "sm" }) {
   const voice = useVoice();
   const { t } = useLingui();
+  const { openModal } = useModals();
 
   function isVideoEnabled() {
     return CONFIGURATION.ENABLE_VIDEO;
+  }
+
+  function openSoundboard() {
+    const server = voice.channel()?.server;
+    if (server) openModal({ type: "soundboard", server });
   }
 
   return (
@@ -109,6 +116,22 @@ export function VoiceCallCardActions(props: { size: "xs" | "sm" }) {
           <Symbol>screen_share</Symbol>
         </Show>
       </IconButton>
+      <Show when={voice.channel()?.server}>
+        <IconButton
+          size={props.size}
+          variant="tonal"
+          onPress={openSoundboard}
+          use:floating={{
+            tooltip: {
+              placement: "top",
+              content: t`Soundboard`,
+            },
+          }}
+          isDisabled={!voice.speakingPermission}
+        >
+          <Symbol>graphic_eq</Symbol>
+        </IconButton>
+      </Show>
       <Button
         size={props.size}
         variant="_error"
