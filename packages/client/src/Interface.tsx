@@ -16,6 +16,7 @@ import { LAYOUT_SECTIONS } from "@revolt/state/stores/Layout";
 import { CircularProgress } from "@revolt/ui";
 
 import { Sidebar } from "./interface/Sidebar";
+import { UserPanel } from "./interface/UserPanel";
 
 /**
  * Application layout
@@ -103,6 +104,7 @@ const Interface = (props: { children: JSX.Element }) => {
               >
                 {props.children}
               </Content>
+              <UserPanel />
             </Layout>
           </Match>
         </Switch>
