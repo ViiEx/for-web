@@ -2,40 +2,37 @@ import {
   ComponentProps,
   For,
   JSX,
-  Match,
   Show,
-  Switch,
-  createEffect,
   createMemo,
-  createRenderEffect,
   createSignal,
   splitProps,
 } from "solid-js";
 
-import { cva } from "styled-system/css";
-import { styled } from "styled-system/jsx";
+import { css } from "styled-system/css";
 
 import MdChevronRight from "@material-design-icons/svg/outlined/chevron_right.svg?component-solid";
 import MdContentCopy from "@material-design-icons/svg/outlined/content_copy.svg?component-solid";
 import MdKeyboardDown from "@material-design-icons/svg/outlined/keyboard_arrow_down.svg?component-solid";
 import MdOpenInNew from "@material-design-icons/svg/outlined/open_in_new.svg?component-solid";
 
-import { OverflowingText, iconSize } from "../utils";
+import { iconSize } from "../utils";
 
-import { Radio2 } from "./Radio";
-import { Ripple } from "./Ripple";
-import { typography } from "./Text";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "./Item";
 
 /**
- * Permissible actions
+ * CategoryButton — thin wrapper around the new `Item` primitive,
+ * preserving the legacy API so existing call-sites work unchanged.
  */
-type Action =
-  | "chevron"
-  | "collapse"
-  | "external"
-  | "edit"
-  | "copy"
-  | JSX.Element;
+
+type Action = "chevron" | "collapse" | "external" | "edit" | "copy" | JSX.Element;
 
 export interface Props {
   readonly icon?: JSX.Element | "blank";
@@ -47,302 +44,107 @@ export interface Props {
   readonly action?: Action | Action[];
 
   readonly roundedIcon?: boolean;
-
   readonly variant?: "filled" | "tonal" | "tertiary" | "tertiaryAlt";
 }
 
-/**
- * Category Button
- */
+function renderAction(action: Action): JSX.Element {
+  if (action === "chevron") return <MdChevronRight {...iconSize(18)} />;
+  if (action === "collapse") return <MdKeyboardDown {...iconSize(18)} />;
+  if (action === "external") return <MdOpenInNew {...iconSize(18)} />;
+  if (action === "copy") return <MdContentCopy {...iconSize(18)} />;
+  return action as JSX.Element;
+}
+
 export function CategoryButton(props: Props) {
+  const actions = () =>
+    (Array.isArray(props.action) ? props.action : [props.action]).filter(
+      (a) => a !== undefined && a !== null,
+    ) as Action[];
+
   return (
-    <Base
-      variant={props.variant}
-      isLink={!!props.onClick}
+    <Item
+      interactive={!!props.onClick && !props.disabled}
       disabled={props.disabled}
-      aria-disabled={props.disabled}
-      onClick={props.disabled ? undefined : props.onClick}
+      onPress={props.onClick}
     >
-      <Ripple />
-
-      <Show when={props.icon !== "blank"}>
-        <IconWrapper rounded={props.roundedIcon}>{props.icon}</IconWrapper>
+      <Show when={props.icon && props.icon !== "blank"}>
+        <ItemMedia variant="icon">{props.icon}</ItemMedia>
       </Show>
-
       <Show when={props.icon === "blank"}>
-        <BlankIconWrapper />
+        <ItemMedia variant="icon" class={css({ background: "transparent" })} />
       </Show>
-
-      <Content>
+      <ItemContent>
         <Show when={props.children}>
-          <OverflowingText>{props.children}</OverflowingText>
+          <ItemTitle>{props.children}</ItemTitle>
         </Show>
         <Show when={props.description}>
-          <Description>{props.description}</Description>
+          <ItemDescription>{props.description}</ItemDescription>
         </Show>
-      </Content>
-      <For each={Array.isArray(props.action) ? props.action : [props.action]}>
-        {(action) => (
-          <Switch fallback={action}>
-            <Match when={action === "chevron"}>
-              <Action>
-                <MdChevronRight {...iconSize(18)} />
-              </Action>
-            </Match>
-            <Match when={action === "collapse"}>
-              <Action>
-                <MdKeyboardDown {...iconSize(18)} />
-              </Action>
-            </Match>
-            <Match when={action === "external"}>
-              <Action>
-                <MdOpenInNew {...iconSize(18)} />
-              </Action>
-            </Match>
-            <Match when={action === "copy"}>
-              <Action>
-                <MdContentCopy {...iconSize(18)} />
-              </Action>
-            </Match>
-          </Switch>
-        )}
-      </For>
-    </Base>
+      </ItemContent>
+      <Show when={actions().length > 0}>
+        <ItemActions>
+          <For each={actions()}>{(a) => renderAction(a)}</For>
+        </ItemActions>
+      </Show>
+    </Item>
   );
 }
 
-/**
- * Base container for button
- */
-const Base = styled("a", {
-  base: {
-    // for <Ripple />:
-    position: "relative",
+CategoryButton.Group = ItemGroup;
 
-    gap: "16px",
-    padding: "13px",
-    borderRadius: "var(--borderRadius-md)",
-
-    userSelect: "none",
-    cursor: "pointer",
-    transition: "background-color 0.1s ease-in-out",
-
-    display: "flex",
-    alignItems: "center",
-    flexDirection: "row",
-
-    color: "var(--color)",
-    fill: "var(--color)",
-  },
-  variants: {
-    variant: {
-      filled: {
-        background: "var(--md-sys-color-primary)",
-        "--color": "var(--md-sys-color-on-primary)",
-      },
-      tonal: {
-        background: "var(--md-sys-color-secondary-container)",
-        "--color": "var(--md-sys-color-on-secondary-container)",
-      },
-      tertiary: {
-        background: "var(--md-sys-color-tertiary-container)",
-        "--color": "var(--md-sys-color-on-tertiary-container)",
-        "--mdui-color-primary": "var(--color)",
-      },
-      tertiaryAlt: {
-        background: "var(--md-sys-color-tertiary)",
-        "--color": "var(--md-sys-color-on-tertiary)",
-        "--mdui-color-primary": "var(--color)",
-      },
-    },
-    isLink: {
-      true: {
-        cursor: "pointer",
-      },
-      false: {
-        cursor: "initial",
-      },
-    },
-    disabled: {
-      true: {
-        cursor: "not-allowed",
-      },
-    },
-  },
-  defaultVariants: {
-    variant: "tonal",
-  },
-});
-
-/**
- * Title and description styles
- */
-const Content = styled("div", {
-  base: {
-    display: "flex",
-    flexGrow: 1,
-    flexDirection: "column",
-
-    fontWeight: 500,
-    fontSize: "14px",
-    gap: "2px",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-  },
-});
-
-/**
- * Accented wrapper for the category button icons
- */
-const IconWrapper = styled("div", {
-  base: {
-    fill: "var(--md-sys-color-on-surface)",
-    background: "var(--md-sys-color-surface-dim)",
-
-    width: "36px",
-    height: "36px",
-    display: "flex",
-    flexShrink: 0,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  variants: {
-    rounded: {
-      true: {
-        borderRadius: "var(--borderRadius-full)",
-      },
-      false: {
-        borderRadius: "var(--borderRadius-md)",
-      },
-    },
-  },
-  defaultVariants: {
-    rounded: true,
-  },
-});
-
-/**
- * Category button icon wrapper for the blank state
- */
-const BlankIconWrapper = styled(IconWrapper, {
-  base: {
-    background: "transparent",
-  },
-});
-
-/**
- * Description shown below title
- */
-const Description = styled("span", {
-  base: {
-    ...typography.raw({ class: "label" }),
-
-    textWrap: "wrap",
-
-    "& a:hover": {
-      textDecoration: "underline",
-    },
-  },
-});
-
-/**
- * Container for action icons
- */
-const Action = styled("div", {
-  base: {
-    width: "24px",
-    height: "24px",
-    flexShrink: 0,
-
-    display: "grid",
-    placeItems: "center",
-  },
-});
-
-/**
- * Group a set of category buttons
- */
-CategoryButton.Group = styled("div", {
-  base: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "var(--gap-xs)",
-
-    borderRadius: "var(--borderRadius-xl)",
-    overflow: "hidden",
-  },
-});
-
-type CollapseProps = Omit<
-  ComponentProps<typeof CategoryButton>,
-  "onClick" | "children"
-> & {
+type CollapseProps = Omit<Props, "onClick" | "children"> & {
   children?: JSX.Element;
   title?: JSX.Element;
-
   scrollable?: boolean;
 };
 
-const MAX_HEIGHT = 340;
+const chevronStyle = css({
+  transition: "transform 150ms ease",
+  "&[data-open=true]": {
+    transform: "rotate(180deg)",
+  },
+});
 
-/**
- * Category button with collapsed children
- */
+const nestedStyle = css({
+  paddingLeft: "calc(var(--gap-lg) + 36px + var(--gap-md))",
+  display: "flex",
+  flexDirection: "column",
+  gap: "var(--gap-xs)",
+});
+
 CategoryButton.Collapse = (props: CollapseProps) => {
-  const [_, remote] = splitProps(props, ["action", "children"]);
-
-  const [opened, setOpened] = createSignal(false);
-  let column: HTMLDivElement | undefined;
-
-  //Toggle the opened state and scroll to the beginning of contents
-  const toggleOpened = () => {
-    const open = !opened();
-    if (open) column?.scroll({ top: 0 });
-    setOpened(open);
-  };
-
-  //Recalculate the column height for transition
-  const updatedHeight = createMemo(() => {
-    const height = opened()
-      ? Math.min(column?.scrollHeight || 0, MAX_HEIGHT)
-      : 0;
-    return `${height}px`;
-  });
+  const [open, setOpen] = createSignal(false);
+  const [, rest] = splitProps(props, ["children", "title", "action", "scrollable"]);
 
   return (
-    <Details onClick={toggleOpened} class={opened() ? "open" : undefined}>
-      <summary>
-        <CategoryButton
-          {...remote}
-          action={[props.action, "collapse"].flat()}
-          onClick={() => void 0}
-        >
-          {props.title}
-        </CategoryButton>
-      </summary>
-      <Switch
-        fallback={
-          <div
-            class={innerColumn({ static: true })}
-            ref={column!}
-            style={{ height: updatedHeight() }}
-          >
-            {props.children}
-          </div>
-        }
-      >
-        <Match when={props.scrollable}>
-          <div
-            ref={column!}
-            style={{ height: updatedHeight() }}
-            use:scrollable={{ class: innerColumn() }}
-          >
-            {props.children}
-          </div>
-        </Match>
-      </Switch>
-    </Details>
+    <>
+      <Item interactive onPress={() => setOpen(!open())}>
+        <Show when={rest.icon && rest.icon !== "blank"}>
+          <ItemMedia variant="icon">{rest.icon}</ItemMedia>
+        </Show>
+        <Show when={rest.icon === "blank"}>
+          <ItemMedia variant="icon" class={css({ background: "transparent" })} />
+        </Show>
+        <ItemContent>
+          <Show when={props.title}>
+            <ItemTitle>{props.title}</ItemTitle>
+          </Show>
+          <Show when={rest.description}>
+            <ItemDescription>{rest.description}</ItemDescription>
+          </Show>
+        </ItemContent>
+        <ItemActions>
+          <MdKeyboardDown
+            {...iconSize(20)}
+            class={chevronStyle}
+            data-open={open()}
+          />
+        </ItemActions>
+      </Item>
+      <Show when={open()}>
+        <div class={nestedStyle}>{props.children}</div>
+      </Show>
+    </>
   );
 };
 
@@ -351,14 +153,8 @@ export type CategorySelectOption = Omit<
   "onClick" | "children"
 > &
   (
-    | {
-        title: JSX.Element;
-        shortDesc?: JSX.Element;
-      }
-    | {
-        title?: JSX.Element;
-        shortDesc: JSX.Element;
-      }
+    | { title: JSX.Element; shortDesc?: JSX.Element }
+    | { title?: JSX.Element; shortDesc: JSX.Element }
   );
 
 type SelectProps<T extends string> = Omit<
@@ -371,156 +167,86 @@ type SelectProps<T extends string> = Omit<
   onUpdate: (v: T) => void;
 };
 
-/**
- * Select dropdown with options from a dictionary
- */
 CategoryButton.Select = <T extends string>(props: SelectProps<T>) => {
-  const [_, remote] = splitProps(props, [
-    "action",
-    "options",
-    "value",
-    "onUpdate",
-  ]);
-
-  const [opened, setOpened] = createSignal(false);
-  let column: HTMLDivElement | undefined, lastVal: T;
-
+  const [open, setOpen] = createSignal(false);
   const opts = createMemo(() => Object.keys(props.options) as T[]);
 
-  const [value, setValue] = createSignal(undefined as unknown as T);
-
-  //Update if props.value changes, but don't run onUpdate
-  createRenderEffect(() => {
-    //@ts-expect-error Type check breaks
-    setValue((lastVal = props.value ?? opts()[0]));
-  });
-
-  //Send user input to onUpdate
-  createEffect(() => {
-    const val = value();
-    if (val !== lastVal) props.onUpdate((lastVal = val));
-  });
-
-  //Toggle the opened state and scroll to the beginning of contents
-  const toggleOpened = () => {
-    const open = !opened();
-    if (open && column && column.scrollHeight > MAX_HEIGHT)
-      column.children[opts().indexOf(value())]?.scrollIntoView();
-    setOpened(open);
-  };
-
-  //Recalculate the column height for transition
-  const updatedHeight = createMemo(() => {
-    const height = opened()
-      ? Math.min(column?.scrollHeight || 0, MAX_HEIGHT)
-      : 0;
-    return `${height}px`;
+  const currentLabel = createMemo(() => {
+    const opt = props.options[(props.value ?? opts()[0]) as T];
+    if (!opt) return undefined;
+    return opt.shortDesc ?? opt.description ?? opt.title;
   });
 
   return (
-    <Details onClick={toggleOpened} class={opened() ? "open" : undefined}>
-      <summary>
-        <CategoryButton
-          {...remote}
-          description={(() => {
-            const opt = props.options[value()];
-            if (opt) return opt.shortDesc ?? opt.description ?? opt.title;
-          })()}
-          action={[props.action, "collapse"].flat()}
-          onClick={() => void 0}
-        >
-          {props.title}
-        </CategoryButton>
-      </summary>
-      <div
-        ref={column!}
-        style={{ height: updatedHeight() }}
-        use:scrollable={{ class: innerColumn() }}
-      >
-        <For each={opts()}>
-          {(val) => (
-            <CategoryButton
-              icon="blank"
-              variant={value() === val ? "tertiaryAlt" : "tertiary"}
-              action={<Radio2.Option checked={value() === val} />}
-              //@ts-expect-error Type check breaks
-              onClick={() => setValue(val)}
-              {...props.options[val]}
-            >
-              {props.options[val].title ?? props.options[val].shortDesc}
-            </CategoryButton>
-          )}
-        </For>
-      </div>
-    </Details>
+    <>
+      <Item interactive onPress={() => setOpen(!open())}>
+        <Show when={props.icon && props.icon !== "blank"}>
+          <ItemMedia variant="icon">{props.icon}</ItemMedia>
+        </Show>
+        <Show when={props.icon === "blank"}>
+          <ItemMedia variant="icon" class={css({ background: "transparent" })} />
+        </Show>
+        <ItemContent>
+          <Show when={props.title}>
+            <ItemTitle>{props.title}</ItemTitle>
+          </Show>
+          <Show when={currentLabel()}>
+            <ItemDescription>{currentLabel()}</ItemDescription>
+          </Show>
+        </ItemContent>
+        <ItemActions>
+          <MdKeyboardDown
+            {...iconSize(20)}
+            class={chevronStyle}
+            data-open={open()}
+          />
+        </ItemActions>
+      </Item>
+      <Show when={open()}>
+        <div class={nestedStyle}>
+          <For each={opts()}>
+            {(val) => {
+              const opt = props.options[val];
+              const isActive = () => (props.value ?? opts()[0]) === val;
+              return (
+                <Item
+                  interactive
+                  onPress={() => {
+                    props.onUpdate(val);
+                    setOpen(false);
+                  }}
+                >
+                  <ItemContent>
+                    <ItemTitle>{opt.title ?? opt.shortDesc}</ItemTitle>
+                    <Show when={opt.description}>
+                      <ItemDescription>{opt.description}</ItemDescription>
+                    </Show>
+                  </ItemContent>
+                  <Show when={isActive()}>
+                    <ItemActions>
+                      <CheckMark />
+                    </ItemActions>
+                  </Show>
+                </Item>
+              );
+            }}
+          </For>
+        </div>
+      </Show>
+    </>
   );
 };
 
-/**
- * Column with inner content
- */
-const innerColumn = cva({
-  base: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "var(--gap-xs)",
-
-    borderRadius: "var(--borderRadius-md)",
-    transition: "0.3s",
-
-    scrollbarWidth: "none",
-    "&::-webkit-scrollbar": {
-      display: "none",
-    },
-  },
-  variants: {
-    static: {
-      true: {
-        overflow: "hidden",
-      },
-    },
-  },
-});
-
-/**
- * Parent base component
- */
-const Details = styled("div", {
-  base: {
-    "&:not(.open) .InnerColumn": {
-      opacity: 0,
-      pointerEvents: "none",
-    },
-
-    /* add transition to the icon */
-    "& summary div:last-child svg": {
-      transition: "0.3s",
-    },
-
-    /* rotate chevron when it is open */
-    "&.open summary div:last-child svg": {
-      transform: "rotate(180deg)",
-    },
-
-    /* add additional padding between top button and children when it is open */
-    "&.open summary": {
-      marginBottom: "var(--gap-xs)",
-    },
-
-    /* hide the default details component marker */
-    "& summary": {
-      transition: "0.3s",
-      listStyle: "none",
-    },
-
-    "& summary::marker, summary::-webkit-details-marker": {
-      display: "none",
-    },
-
-    /* connect elements vertically */
-    // "& > :not(summary) .CategoryButton": {
-    //   /* and set child backgrounds */
-    //   background: "var(--unset-bg)",
-    // },
-  },
-});
+function CheckMark() {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="none">
+      <path
+        d="M3 8.5l3.5 3.5L13 5"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+}
