@@ -60,7 +60,7 @@ ENV VITE_RNNOISE_WORKLET_CDN_URL=__VITE_RNNOISE_WORKLET_CDN_URL__
 ARG BASE_PATH=/
 ENV BASE_PATH=${BASE_PATH}
 
-RUN pnpm --filter client exec vite build
+RUN NODE_OPTIONS="--max-old-space-size=6144" pnpm --filter client exec vite build
 
 # ============================================
 # Stage 2: Minimal runtime image

@@ -9,7 +9,7 @@ import { Navigate } from "@revolt/routing";
 import { Button, Column } from "@revolt/ui";
 
 import { useState } from "@revolt/state";
-import Wordmark from "../../../../public/assets/web/wordmark.svg?component-solid";
+import wordmarkUrl from "../../../../public/assets/web/wordmark.svg?url";
 
 /**
  * Flow for logging into an account
@@ -27,11 +27,22 @@ export default function FlowHome() {
           </Show>
 
           <Column gap="xl">
-            <Wordmark
+            <div
+              role="img"
+              aria-label="Campfire"
               class={css({
                 width: "60%",
                 margin: "auto",
-                fill: "var(--md-sys-color-on-surface)",
+                aspectRatio: "1774 / 887",
+                backgroundColor: "var(--md-sys-color-on-surface)",
+                WebkitMaskImage: `url(${wordmarkUrl})`,
+                maskImage: `url(${wordmarkUrl})`,
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
               })}
             />
 

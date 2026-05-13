@@ -31,7 +31,7 @@ export default defineConfig({
       filename: "serviceWorker.ts",
       strategies: "injectManifest",
       injectManifest: {
-        maximumFileSizeToCacheInBytes: 4000000,
+        maximumFileSizeToCacheInBytes: 8000000,
       },
       manifest: {
         name: "Campfire",
@@ -76,6 +76,24 @@ export default defineConfig({
     target: "esnext",
     rollupOptions: {
       external: ["hast"],
+      output: {
+        manualChunks(id) {
+          if (
+            id.includes("/livekit-client/") ||
+            id.includes("/livekit-rnnoise-processor/") ||
+            id.includes("/@livekit/components-core/") ||
+            id.includes("/solid-livekit-components/")
+          ) {
+            return "vendor-livekit";
+          }
+          if (id.includes("/mdui/") || id.includes("/@mdui/")) {
+            return "vendor-mdui";
+          }
+          if (id.includes("/@material-design-icons/")) {
+            return "vendor-md-icons";
+          }
+        },
+      },
     },
     sourcemap: true,
   },

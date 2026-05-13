@@ -1,16 +1,12 @@
 import { ComponentProps, JSX, createEffect, createSignal, on } from "solid-js";
 
-import "katex/dist/katex.min.css";
-import { all } from "lowlight";
 import { html } from "property-information";
-import rehypeHighlight from "rehype-highlight";
-import rehypeKatex from "rehype-katex";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
-import { unified } from "unified";
+import { Processor, unified } from "unified";
 import { VFile } from "vfile";
 
 import * as elements from "./elements";
@@ -203,7 +199,7 @@ const HTML_UNIFIED_PLUGINS = [
   remarkHtmlToText,
 ];
 
-const htmlPipeline = HTML_UNIFIED_PLUGINS.reduce(
+const lightHtmlPipeline = HTML_UNIFIED_PLUGINS.reduce(
   (pipeline, plugin) => pipeline.use(plugin) as never,
   unifiedPipeline,
 )
@@ -217,18 +213,45 @@ const htmlPipeline = HTML_UNIFIED_PLUGINS.reduce(
       spoiler: spoilerHandler,
     },
   })
-  .use(remarkInsertBreaks)
-  .use(rehypeKatex, {
-    maxSize: 10,
-    maxExpand: 2,
-    trust: false,
-    strict: false,
-    output: "html",
-    errorColor: "var(--md-sys-color-error)",
-  })
-  .use(rehypeHighlight, {
-    languages: all,
-  });
+  .use(remarkInsertBreaks) as unknown as MdPipeline;
+
+// The unified plugin chain mixes mdast (Root) and hast (Root) AST types and
+// the @ts-expect-error above for non-standard hast elements means TS can't
+// track them precisely. Use a permissive alias for the pipeline value so the
+// lazy heavy pipeline can be substituted in interchangeably.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type MdPipeline = Processor<any, any, any, any, any>;
+
+// Heavy syntax-highlighting + math rendering plugins are dynamically imported
+// on first Markdown render so katex, lowlight, and highlight.js languages
+// don't end up in the initial chunk.
+let heavyHtmlPipelinePromise: Promise<MdPipeline> | null = null;
+function loadHeavyHtmlPipeline(): Promise<MdPipeline> {
+  if (!heavyHtmlPipelinePromise) {
+    heavyHtmlPipelinePromise = (async () => {
+      const [rehypeKatexMod, rehypeHighlightMod, lowlightMod] =
+        await Promise.all([
+          import("rehype-katex"),
+          import("rehype-highlight"),
+          import("lowlight"),
+          import("katex/dist/katex.min.css"),
+        ]);
+      return lightHtmlPipeline
+        .use(rehypeKatexMod.default, {
+          maxSize: 10,
+          maxExpand: 2,
+          trust: false,
+          strict: false,
+          output: "html",
+          errorColor: "var(--md-sys-color-error)",
+        })
+        .use(rehypeHighlightMod.default, {
+          languages: lowlightMod.all,
+        }) as unknown as MdPipeline;
+    })();
+  }
+  return heavyHtmlPipelinePromise;
+}
 
 const replyPipeline = unified()
   .use(remarkParse)
@@ -289,6 +312,9 @@ export function renderSimpleMarkdown(content: string) {
   );
 }
 
+// Cached heavy pipeline once resolved; null until then.
+let heavyHtmlPipeline: Processor | null = null;
+
 /**
  * Remark renderer component
  */
@@ -297,11 +323,11 @@ export function Markdown(props: MarkdownProps) {
    * Render some given Markdown content
    * @param content content
    */
-  function render(content = "") {
+  function render(content = "", pipeline: Processor) {
     const file = new VFile();
     file.value = sanitise(content);
 
-    const hastNode = htmlPipeline.runSync(htmlPipeline.parse(file), file);
+    const hastNode = pipeline.runSync(pipeline.parse(file), file);
 
     if (hastNode.type !== "root") {
       throw new TypeError("Expected a `root` node");
@@ -323,15 +349,29 @@ export function Markdown(props: MarkdownProps) {
     );
   }
 
-  // Render once immediately
+  // Render once immediately with whichever pipeline is currently available.
+  // First render(s) before the heavy pipeline resolves use the light pipeline
+  // (no syntax highlighting / math) and are upgraded on resolution.
+  const initialPipeline = heavyHtmlPipeline ?? lightHtmlPipeline;
   // eslint-disable-next-line solid/reactivity
-  const [children, setChildren] = createSignal(render(props.content));
+  const [children, setChildren] = createSignal(
+    render(props.content, initialPipeline),
+  );
 
-  // If it ever updates, re-render the whole tree:
+  // Kick off heavy pipeline load on first render; upgrade output once ready.
+  if (!heavyHtmlPipeline) {
+    loadHeavyHtmlPipeline().then((pipeline) => {
+      heavyHtmlPipeline = pipeline;
+      setChildren(render(props.content, pipeline));
+    });
+  }
+
+  // If content ever updates, re-render with the best pipeline available.
   createEffect(
     on(
       () => props.content,
-      (content) => setChildren(render(content)),
+      (content) =>
+        setChildren(render(content, heavyHtmlPipeline ?? lightHtmlPipeline)),
       { defer: true },
     ),
   );
