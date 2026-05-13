@@ -151,6 +151,10 @@ export type Modals =
       emoji: Emoji;
     }
   | {
+      type: "soundboard";
+      server: Server;
+    }
+  | {
       /**
        * @deprecated build proper error handling!
        */

@@ -4,6 +4,7 @@ import {
   BiSolidGroup,
   BiSolidHappyBeaming,
   BiSolidInfoCircle,
+  BiSolidMusic,
   BiSolidTrash,
   BiSolidUserX,
 } from "solid-icons/bi";
@@ -22,6 +23,7 @@ import Overview from "./server/Overview";
 import { ListServerBans } from "./server/bans/ListBans";
 import { EmojiList } from "./server/emojis/EmojiList";
 import { ListServerInvites } from "./server/invites/ListServerInvites";
+import { SoundList } from "./server/sounds/SoundList";
 import { ServerRoleEditor } from "./server/roles/ServerRoleEditor";
 import { ServerRoleOverview } from "./server/roles/ServerRoleOverview";
 
@@ -72,6 +74,8 @@ const Config: SettingsConfiguration<Server> = {
         return <Overview server={server} />;
       case "emojis":
         return <EmojiList server={server} />;
+      case "sounds":
+        return <SoundList server={server} />;
       case "roles":
         return <ServerRoleOverview context={server} />;
       case "invites":
@@ -114,6 +118,11 @@ const Config: SettingsConfiguration<Server> = {
               id: "emojis",
               icon: <BiSolidHappyBeaming size={20} />,
               title: <Trans>Emojis</Trans>,
+            },
+            {
+              id: "sounds",
+              icon: <BiSolidMusic size={20} />,
+              title: <Trans>Soundboard</Trans>,
             },
           ],
         },

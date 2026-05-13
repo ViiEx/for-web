@@ -89,8 +89,11 @@ export function toCodepoint(input: string) {
           );
         }
       } else if (input.charCodeAt(i) < 0xd800 || input.charCodeAt(i) > 0xdfff) {
-        // modifiers and joiners
-        pairs.push(input.charCodeAt(i));
+        // modifiers and joiners (strip variation selectors FE0E/FE0F)
+        const code = input.charCodeAt(i);
+        if (code !== 0xfe0e && code !== 0xfe0f) {
+          pairs.push(code);
+        }
       }
     }
 

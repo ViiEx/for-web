@@ -31,9 +31,11 @@ interface Props {
   multiple?: false;
 
   /**
-   * What type of files to accept
+   * What type of files to accept (HTML `accept` attribute).
+   * Use `"image/*"` to render the dedicated image-preview UI; any other
+   * value falls back to a basic file picker.
    */
-  accept?: "image/*";
+  accept?: string;
 
   imageAspect?: string;
   imageRounded?: boolean;
