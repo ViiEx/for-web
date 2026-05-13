@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "prepare": "panda codegen"
+    "prepare": "panda codegen && { test -f components/i18n/catalogs/en/messages.po || exit 0; lingui compile --typescript; }",
+    "i18n:compile": "lingui compile --typescript",
+    "i18n:extract": "lingui extract --clean"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^2.0.2",
