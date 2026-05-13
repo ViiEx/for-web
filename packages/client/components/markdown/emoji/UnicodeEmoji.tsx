@@ -1,9 +1,9 @@
-import { ComponentProps, splitProps } from "solid-js";
+import { ComponentProps, Show, createSignal, splitProps } from "solid-js";
 
 import emojiRegex from "emoji-regex";
 
 import { useState } from "@revolt/state";
-import { EmojiBase, toCodepoint } from ".";
+import { EmojiBase, EmojiFallback, toCodepoint } from ".";
 
 export type UnicodeEmojiPacks =
   | "fluent-3d"
@@ -79,18 +79,22 @@ export function UnicodeEmoji(
 ) {
   const [local, remote] = splitProps(props, ["emoji"]);
   const state = useState();
+  const [failed, setFailed] = createSignal(false);
 
   return (
-    <EmojiBase
-      {...remote}
-      loading="lazy"
-      class="emoji"
-      alt={local.emoji}
-      draggable={false}
-      src={unicodeEmojiUrl(
-        props.pack ?? state.settings.getValue("appearance:unicode_emoji"),
-        props.emoji,
-      )}
-    />
+    <Show when={!failed()} fallback={<EmojiFallback>{local.emoji}</EmojiFallback>}>
+      <EmojiBase
+        {...remote}
+        loading="lazy"
+        class="emoji"
+        alt={local.emoji}
+        draggable={false}
+        src={unicodeEmojiUrl(
+          props.pack ?? state.settings.getValue("appearance:unicode_emoji"),
+          props.emoji,
+        )}
+        onError={() => setFailed(true)}
+      />
+    </Show>
   );
 }

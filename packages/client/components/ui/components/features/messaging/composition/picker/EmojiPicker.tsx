@@ -145,7 +145,6 @@ export function EmojiPicker() {
         placeholder="Search for emojis..."
         value={filter()}
         onMouseDown={(e) => {
-          e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
         }}

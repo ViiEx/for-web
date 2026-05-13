@@ -1,5 +1,6 @@
 import {
   Match,
+  Show,
   Suspense,
   Switch,
   createContext,
@@ -112,9 +113,22 @@ export function GifPicker() {
           </Match>
         </Switch>
       </Suspense>
+      <Show when={useGiphy()}>
+        <Attribution>Powered by GIPHY</Attribution>
+      </Show>
     </Stack>
   );
 }
+
+const Attribution = styled("div", {
+  base: {
+    ...typography.raw({ class: "label", size: "small" }),
+    padding: "var(--gap-sm) var(--gap-md)",
+    color: "var(--md-sys-color-on-surface-variant)",
+    textAlign: "center",
+    flexShrink: 0,
+  },
+});
 
 const Stack = styled("div", {
   base: {
