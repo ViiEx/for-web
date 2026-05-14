@@ -28,7 +28,7 @@ export function codeMirrorWidgets() {
     regexp: new RegExp(
       RE_UNICODE_EMOJI.source +
         "|" +
-        /:([0-7][0-9A-HJKMNP-TV-Z]{25}):|<@([0-7][0-9A-HJKMNP-TV-Z]{25})>|<#([0-7][0-9A-HJKMNP-TV-Z]{25})>|<%([0-7][0-9A-HJKMNP-TV-Z]{25})>/
+        /:([0-7][0-9A-HJKMNP-TV-Z]{25}):|<@([0-7][0-9A-HJKMNP-TV-Z]{25})>|<#([0-7][0-9A-HJKMNP-TV-Z]{25})>|<%([0-7][0-9A-HJKMNP-TV-Z]{25})>|@everyone|@online/
           .source,
       "g",
     ),
@@ -77,6 +77,8 @@ export function codeMirrorWidgets() {
         if (role) {
           widget = new RoleMentionWidget(role);
         }
+      } else if (str === "@everyone" || str === "@online") {
+        widget = new SpecialMentionWidget(str.substring(1));
       }
 
       return Decoration.replace({
@@ -237,6 +239,36 @@ class ChannelMentionWidget extends WidgetType {
 
     const name = document.createElement("span");
     name.textContent = this.channel.name;
+    mention.appendChild(name);
+
+    return mention;
+  }
+}
+
+class SpecialMentionWidget extends WidgetType {
+  private readonly label: string;
+
+  constructor(label: string) {
+    super();
+    this.label = label;
+  }
+
+  eq(other: SpecialMentionWidget): boolean {
+    return this.label === other.label;
+  }
+
+  toDOM() {
+    const mention = document.createElement("span");
+    mention.classList.add("cm-mention-widget");
+    mention.contentEditable = "false";
+
+    const icon = document.createElement("span");
+    icon.innerText = "alternate_email";
+    icon.classList.add("material-symbols-outlined");
+    mention.appendChild(icon);
+
+    const name = document.createElement("span");
+    name.textContent = this.label;
     mention.appendChild(name);
 
     return mention;

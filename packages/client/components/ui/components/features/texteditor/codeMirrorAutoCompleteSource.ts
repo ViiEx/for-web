@@ -60,8 +60,31 @@ export function codeMirrorAutoCompleteSource(
     );
   });
 
-  const users = createMemo(() =>
-    (
+  const everyoneCompletion: Completion = {
+    type: "user",
+    label: "@everyone",
+    displayLabel: "everyone",
+    detail: "Notify everyone in this channel",
+    apply: "@everyone ",
+    boost: 2,
+  };
+
+  const onlineCompletion: Completion = {
+    type: "user",
+    label: "@online",
+    displayLabel: "online",
+    detail: "Notify everyone currently online",
+    apply: "@online ",
+    boost: 1,
+  };
+
+  const canMentionEveryone = createMemo(
+    () => searchSpace()?.channel?.havePermission("MentionEveryone") ?? false,
+  );
+
+  const users = createMemo(() => [
+    ...(canMentionEveryone() ? [everyoneCompletion, onlineCompletion] : []),
+    ...(
       searchSpace()?.members ??
       searchSpace()?.users ??
       client().users.toList()
@@ -81,7 +104,7 @@ export function codeMirrorAutoCompleteSource(
         url: entry.animatedAvatarURL,
       };
     }),
-  );
+  ]);
 
   const roles = createMemo(() => {
     return (
